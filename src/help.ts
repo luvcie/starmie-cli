@@ -123,6 +123,14 @@ ${blue('randommove')} [count] [filters]  Alias: rm
        randommove water, special
        randommove 3 bp > 90, contact
 
+${blue('sets')} [gen] <pokemon> [, tier]
+  Competitive sets for a Pokemon from Smogon, grouped by tier.
+  Move slots with multiple options are shown as A / B.
+  e.g. sets bw chansey
+       sets bw gengar
+       sets gengar, ou
+       sets gen4 garchomp
+
 ${blue('randomquote')}  Alias: rq
   Print a random Pokémon quote.
 

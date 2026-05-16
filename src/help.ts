@@ -123,6 +123,12 @@ ${blue('randommove')} [count] [filters]  Alias: rm
        randommove water, special
        randommove 3 bp > 90, contact
 
+${blue('moves')} [gen] <pokemon>
+  Full learnset for a Pokemon grouped by method (level-up, TM/HM, egg, tutor, etc.)
+  e.g. moves gengar
+       moves bw gengar
+       moves gen4 togekiss
+
 ${blue('sets')} [gen] <pokemon> [, tier]
   Competitive sets for a Pokemon from Smogon, grouped by tier.
   Move slots with multiple options are shown as A / B.

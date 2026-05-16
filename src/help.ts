@@ -68,6 +68,13 @@ ${blue('nature')} [name]
        nature timid
        nature
 
+${blue('counter')} [gen] <move|type> [, pokemon1, pokemon2, ...]
+  Show which types resist or are immune to a move/type. If pokemon are given,
+  filters to just your team and groups them by immune, resists, neutral, weak.
+  e.g. counter earthquake
+       counter fire
+       counter earthquake, garchomp, rotom-wash, blissey, salamence
+
 ${blue('compare')} [gen] <pokemon1>, <pokemon2>
   Side-by-side base stat comparison.
   e.g. compare garchomp, dragonite

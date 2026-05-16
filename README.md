@@ -91,20 +91,24 @@ pokescope dexsearch fire, ou
 | `ability` | list all Pokemon with a given ability, grouped by regular vs hidden |
 | `evspread` | list all Pokemon that give EVs in a stat, grouped by yield amount |
 | `evyield` | EV yield when defeating a Pokemon |
+| `sets` | competitive sets for a Pokemon from Smogon, grouped by tier |
 | `randompokemon` | random Pokemon, optionally filtered by dexsearch criteria |
 | `randommove` | random move, optionally filtered by movesearch criteria |
 | `randomquote` | a random Pokemon quote (not from Showdown, just something I added) |
 
 All commands support a `[gen]` prefix (e.g. `gen4`, `adv`, `bw`) to query older generations. Type `help` inside the REPL for full usage and examples.
 
-Some commands aren't from Pokemon Showdown: `evyield`, `evspread`, `nature`, `ability`, `team`, `compare`, `counter`, and `randomquote`. Might add more in the future. :)
+Not all commands are from Pokemon Showdown: `evyield`, `evspread`, `nature`, `ability`, `team`, `compare`, `counter`, `sets`, and `randomquote` are custom additions of mine. :)
 
-## Updating @pkmn/sim
+## Updating data
 
 Note to future me:
 
 ```
 bun update @pkmn/sim
+bun run update-data
 bunx bun2nix -o bun.nix
-git add package.json bun.lock bun.nix && git commit -m "chore: bump @pkmn/sim"
+git add package.json bun.lock bun.nix data/ && git commit -m "chore: bump data"
 ```
+
+`bun update @pkmn/sim` updates the sim/dex data. `bun run update-data` re-fetches the Smogon sets (from pkmn.github.io) and EV yields (from PokéAPI) and writes them to `data/`.

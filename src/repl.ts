@@ -21,6 +21,7 @@ import { cmdCompare } from './commands/compare';
 import { cmdCounter } from './commands/counter';
 import { cmdSets } from './commands/sets';
 import { cmdMoves } from './commands/moves';
+import { cmdChain } from './commands/chain';
 
 const COMMANDS = [
   'weakness', 'weak', 'weaknesses', 'resist',
@@ -43,6 +44,7 @@ const COMMANDS = [
   'counter',
   'sets',
   'moves',
+  'chain',
   'randomquote', 'rq',
   'help', 'exit', 'quit',
 ];
@@ -155,6 +157,9 @@ function dispatch(cmd: string, args: string[]): void {
     break;
   case 'moves':
     cmdMoves(args);
+    break;
+  case 'chain':
+    cmdChain(args);
     break;
   case 'randompokemon':
   case 'randpoke':

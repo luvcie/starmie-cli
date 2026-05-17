@@ -1,7 +1,6 @@
-import { readFileSync } from 'fs';
-import { join } from 'path';
 import { bold, dim, cyan } from '../ansi';
 import { parseGenPrefix } from '../gen';
+import { SETS_DATA } from '../data/sets-data';
 
 type MoveSlot = string | string[];
 type SetData = {
@@ -60,11 +59,8 @@ export function cmdSets(args: string[]): void {
     return;
   }
 
-  let setsFile: SetsFile;
-  try {
-    const filePath = join(import.meta.dir, '../../data/sets', `gen${genNum}.json`);
-    setsFile = JSON.parse(readFileSync(filePath, 'utf8'));
-  } catch {
+  const setsFile = SETS_DATA[genNum] as SetsFile | undefined;
+  if (!setsFile) {
     console.error(`No sets data for gen ${genNum}.`);
     return;
   }

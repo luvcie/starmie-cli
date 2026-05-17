@@ -191,6 +191,11 @@ const argv = process.argv.slice(2);
 
 if (argv.length > 0) {
   const [cmd, ...rest] = argv;
+  if (cmd === '--version' || cmd === '-version') {
+    const { version } = await import('../package.json');
+    console.log(`pokescope ${version}`);
+    process.exit(0);
+  }
   dispatch(cmd, rest);
 } else {
   console.log(`${bold('pokescope')} ${randKaomoji()} type ${blue('help')} to see available commands, ${blue('exit')} to quit.\n`);

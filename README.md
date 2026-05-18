@@ -18,7 +18,25 @@ Also thanks to my fren William for helping me choose the name. :)
 
 ## Install
 
-[Nix](#nix) · [mise](#mise) · [curl](#curl) · [From source](#from-source)
+[curl](#curl) · [Nix](#nix) · [mise](#mise) · [From source](#from-source)
+
+### curl
+
+**Linux and macOS:**
+```sh
+curl -fsSL https://raw.githubusercontent.com/luvcie/pokescope/main/install.sh | sh
+```
+
+To uninstall: `rm ~/.local/bin/pokescope`
+
+**Windows (PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/luvcie/pokescope/main/install.ps1 | iex
+```
+
+To uninstall: `Remove-Item "$env:LOCALAPPDATA\pokescope" -Recurse -Force`
+
+<small>To update to latest version, re-run the install command.</small>
 
 ### Nix
 
@@ -57,34 +75,14 @@ To update:
 mise upgrade github:luvcie/pokescope
 ```
 
-On Windows, mise's shims aren't on PATH by default. To add them for the current session:
+On Windows, mise's shims aren't on PATH by default. To add them permanently (requires restarting PowerShell after):
 ```powershell
-$env:Path += ";$env:LOCALAPPDATA\mise\shims"
-```
-To add them permanently (requires restarting PowerShell after):
-```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 Add-Content $PROFILE "`nmise activate pwsh | Out-String | Invoke-Expression"
 ```
-
-### curl
-
-**Linux and macOS:**
-```sh
-curl -fsSL https://raw.githubusercontent.com/luvcie/pokescope/main/install.sh | sh
-```
-
-To uninstall: `rm ~/.local/bin/pokescope`
-
-**Windows (PowerShell):**
+If you see a warning about `chpwd` requiring PowerShell 7, silence it with:
 ```powershell
-irm https://raw.githubusercontent.com/luvcie/pokescope/main/install.ps1 | iex
-```
-
-To uninstall:
-```powershell
-Remove-Item "$env:LOCALAPPDATA\pokescope" -Recurse -Force
-$p = [Environment]::GetEnvironmentVariable('Path', 'User')
-[Environment]::SetEnvironmentVariable('Path', $p.Replace(";$env:LOCALAPPDATA\pokescope", ''), 'User')
+[Environment]::SetEnvironmentVariable('MISE_PWSH_CHPWD_WARNING', '0', 'User')
 ```
 
 ### From source

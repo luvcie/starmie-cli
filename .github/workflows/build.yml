@@ -1,9 +1,8 @@
 name: Build
 
 on:
-  push:
-    tags:
-      - 'v*'
+  release:
+    types: [published]
   workflow_dispatch:
     inputs:
       tag:
@@ -36,6 +35,6 @@ jobs:
           bun build --compile --target=bun-windows-x64   pokescope.ts --outfile dist/pokescope-windows-x64.exe
 
       - name: Upload to release
-        run: gh release upload ${{ inputs.tag || github.ref_name }} dist/* --clobber
+        run: gh release upload ${{ inputs.tag || github.event.release.tag_name }} dist/* --clobber
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

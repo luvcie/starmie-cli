@@ -123,11 +123,11 @@ ${blue('randommove')} [count] [filters]  Alias: rm
        randommove water, special
        randommove 3 bp > 90, contact
 
-${blue('chain')} [gen] <pokemon>
+${blue('evo')} [gen] <pokemon>   (aliases: evochain, chain)
   Evolution chain for a Pokemon, showing evo methods.
-  e.g. chain gastly
-       chain haunter
-       chain eevee
+  e.g. evo gastly
+       evo haunter
+       evo eevee
 
 ${blue('moves')} [gen] <pokemon>
   Full learnset for a Pokemon grouped by method (level-up, TM/HM, egg, tutor, etc.)

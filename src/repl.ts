@@ -44,7 +44,7 @@ const COMMANDS = [
   'counter',
   'sets',
   'moves',
-  'chain',
+  'evo', 'evochain', 'chain',
   'randomquote', 'rq',
   'help', 'exit', 'quit',
 ];
@@ -158,6 +158,8 @@ function dispatch(cmd: string, args: string[]): void {
   case 'moves':
     cmdMoves(args);
     break;
+  case 'evo':
+  case 'evochain':
   case 'chain':
     cmdChain(args);
     break;

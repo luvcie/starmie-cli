@@ -129,7 +129,7 @@ pokescope dexsearch fire, ou
 | `ability` | list all Pokemon with a given ability, grouped by regular vs hidden |
 | `evspread` | list all Pokemon that give EVs in a stat, grouped by yield amount |
 | `evyield` | EV yield when defeating a Pokemon |
-| `chain` | evolution chain for a Pokemon, with evo methods |
+| `evo` | evolution chain for a Pokemon, with evo methods (aliases: `evochain`, `chain`) |
 | `moves` | full learnset for a Pokemon, grouped by method (level-up, TM, egg, tutor...) |
 | `sets` | competitive sets for a Pokemon from Smogon, grouped by tier |
 | `randompokemon` | random Pokemon, optionally filtered by dexsearch criteria |
@@ -138,7 +138,7 @@ pokescope dexsearch fire, ou
 
 All commands support a `[gen]` prefix (e.g. `gen4`, `adv`, `bw`) to query older generations. Type `help` inside the REPL for full usage and examples.
 
-Not all commands are from Pokemon Showdown: `evyield`, `evspread`, `nature`, `ability`, `team`, `compare`, `counter`, `chain`, `moves`, `sets`, and `randomquote` are custom additions of mine. :)
+Not all commands are from Pokemon Showdown: `evyield`, `evspread`, `nature`, `ability`, `team`, `compare`, `counter`, `evo`, `moves`, `sets`, and `randomquote` are custom additions of mine. :)
 
 ## Updating data
 

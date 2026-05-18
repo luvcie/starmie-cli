@@ -18,6 +18,7 @@ interface MoveSearchGroup {
   volatileStatus: Record<string, boolean>;
   other: Record<string, boolean>;
   skip: boolean;
+  invalid: boolean;
 }
 
 export function cmdMovesearch(args: string[], poolOnly = false): Move[] | void {
@@ -77,7 +78,7 @@ export function cmdMovesearch(args: string[], poolOnly = false): Move[] | void {
 
   const makeGroup = (): MoveSearchGroup => ({
     types: {}, categories: {}, flags: {}, gens: {}, props: {},
-    boosts: {}, lowers: {}, zboosts: {}, status: {}, volatileStatus: {}, other: {}, skip: false,
+    boosts: {}, lowers: {}, zboosts: {}, status: {}, volatileStatus: {}, other: {}, skip: false, invalid: false,
   });
 
   for (const commaGroup of splitFilterTokens(rest)) {
@@ -208,6 +209,7 @@ export function cmdMovesearch(args: string[], poolOnly = false): Move[] | void {
       }
 
       grp.skip = true;
+      grp.invalid = true;
       console.error(`Unrecognized movesearch filter: '${token}'`);
     }
 
@@ -247,6 +249,7 @@ export function cmdMovesearch(args: string[], poolOnly = false): Move[] | void {
   }
 
   function matchesOneGroup(move: ReturnType<typeof dex.moves.get>, grp: MoveSearchGroup): boolean {
+    if (grp.invalid) return false;
     if (grp.skip) return true;
 
     for (const [typeName, want] of Object.entries(grp.types)) {

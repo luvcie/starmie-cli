@@ -1,12 +1,17 @@
 import { Dex } from '@pkmn/sim';
 import type { Move, Species } from '@pkmn/sim';
 import { bold, dim } from '../ansi';
+import { randKaomoji } from '../kaomoji';
 import { cmdDexsearch } from './dexsearch';
 import { cmdMovesearch } from './movesearch';
 
 export function cmdRandomPokemon(args: string[]): void {
   let count = 1;
   let filterArgs = args;
+  if (args.length && /^-?\d+$/.test(args[0]) && parseInt(args[0]) <= 0) {
+    console.log('\n' + randKaomoji() + '\n');
+    return;
+  }
   if (args.length && /^\d+$/.test(args[0])) {
     count = Math.min(parseInt(args[0]), 10);
     filterArgs = args.slice(1);
@@ -35,6 +40,10 @@ export function cmdRandomPokemon(args: string[]): void {
 export function cmdRandomMove(args: string[]): void {
   let count = 1;
   let filterArgs = args;
+  if (args.length && /^-?\d+$/.test(args[0]) && parseInt(args[0]) <= 0) {
+    console.log('\n' + randKaomoji() + '\n');
+    return;
+  }
   if (args.length && /^\d+$/.test(args[0])) {
     count = Math.min(parseInt(args[0]), 10);
     filterArgs = args.slice(1);

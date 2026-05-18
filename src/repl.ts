@@ -73,18 +73,7 @@ function completer(line: string): [string[], string] {
   return [hits, word];
 }
 
-const KAOMOJI = [
-  '(^w^)7',
-  '(>﹏<)ゝ',
-  'ᓚ₍⑅^..^₎',
-  '/(-3-)',
-  "_( '/3\\' )_",
-  '<❪❪꒰˶ᵔ ᵕ ᵔ˶꒱❫❫>',
-  '@(@~@)@',
-  "++(' _ ')++",
-  '(\\/) ( ;,,;)(\\/)',
-];
-const randKaomoji = (): string => KAOMOJI[Math.floor(Math.random() * KAOMOJI.length)];
+import { randKaomoji } from './kaomoji';
 
 function dispatch(cmd: string, args: string[]): void {
   if (cmd.startsWith('/')) cmd = cmd.slice(1);

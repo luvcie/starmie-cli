@@ -400,7 +400,7 @@ export function cmdDexsearch(args: string[], poolOnly = false): Species[] | void
   }
 
   function matchesOneGroup(species: Species, grp: DexSearchGroup): boolean {
-    if (grp.skip) return true;
+    if (grp.skip) return false;
     const effectiveTier = natdexSearch ? species.natDexTier : species.tier;
 
     for (const [typeName, want] of Object.entries(grp.types)) {

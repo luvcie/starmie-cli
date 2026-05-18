@@ -42,7 +42,7 @@ const COMMANDS = [
   'team',
   'compare',
   'counter',
-  'sets',
+  'sets', 'smogon',
   'moves',
   'evo', 'evochain', 'chain',
   'randomquote', 'rq',
@@ -152,7 +152,7 @@ function dispatch(cmd: string, args: string[]): void {
   case 'counter':
     cmdCounter(args);
     break;
-  case 'sets':
+  case 'sets': case 'smogon':
     cmdSets(args);
     break;
   case 'moves':

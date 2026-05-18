@@ -135,7 +135,7 @@ ${blue('moves')} [gen] <pokemon>
        moves bw gengar
        moves gen4 togekiss
 
-${blue('sets')} [gen] <pokemon> [, tier]
+${blue('sets')} [gen] <pokemon> [, tier]  ${dim('Alias: smogon')}
   Competitive sets for a Pokemon from Smogon, grouped by tier.
   Move slots with multiple options are shown as A / B.
   e.g. sets bw chansey

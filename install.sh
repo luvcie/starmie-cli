@@ -31,6 +31,21 @@ chmod +x "$INSTALL_DIR/pokescope"
 echo "Installed to $INSTALL_DIR/pokescope"
 
 case ":$PATH:" in
-  *":$INSTALL_DIR:"*) ;;
-  *) echo "Note: add $INSTALL_DIR to your PATH if it isn't already." ;;
+  *":$INSTALL_DIR:"*)
+    echo "Done! Run: pokescope"
+    ;;
+  *)
+    SHELL_RC=""
+    case "$SHELL" in
+      */zsh)  SHELL_RC="$HOME/.zshrc" ;;
+      */bash) SHELL_RC="$HOME/.bashrc" ;;
+    esac
+    if [ -n "$SHELL_RC" ]; then
+      echo "export PATH=\"\$HOME/.local/bin:\$PATH\"" >> "$SHELL_RC"
+      echo "Added $INSTALL_DIR to PATH in $SHELL_RC."
+      echo "Open a new terminal or run: source $SHELL_RC"
+    else
+      echo "$INSTALL_DIR is not in your PATH. Add it manually to use pokescope."
+    fi
+    ;;
 esac

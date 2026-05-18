@@ -8,7 +8,7 @@ It's made in TypeScript because it uses the [`@pkmn/sim`](https://www.npmjs.com/
 
 Why not Go, Rust, Gleam, etc.? Because pokemon showdown isn't just data on pokemon, moves, items, etc., there's also a lot of logic (learnset validation, format rules, type effectiveness with abilities and items, etc.), and reimplementing all that and keeping it in sync with every Showdown update is way more work than just letting `bun update` handle it.
 
-Runs on [Bun](https://bun.sh), which executes TypeScript directly with no build step. The Nix package ships the source and a small wrapper that invokes `bun run`.
+Runs on [Bun](https://bun.sh), which executes TypeScript directly with no build step. The Nix package ships the source and a small wrapper that invokes `bun run`, and the mise package installs a precompiled binary.
 
 It uses [`@pkmn/sim`](https://www.npmjs.com/package/@pkmn/sim) from [Modular Pokémon Showdown](https://github.com/pkmn), a slimmer extraction of [pokemon showdown](https://github.com/smogon/pokemon-showdown)'s data, simulator, and team validator. Nix builds go through [`bun2nix`](https://github.com/nix-community/bun2nix) for per-package reproducibility.
 
@@ -18,17 +18,9 @@ Also thanks to my fren William for helping me choose the name. :)
 
 ## Install
 
-Works on Linux and macOS (x86_64 and aarch64).
+[Nix](#nix) · [mise](#mise) · [From source](#from-source)
 
-**From source:**
-```
-git clone https://github.com/luvcie/pokescope
-cd pokescope
-bun install
-bun link
-```
-
-**Nix:**
+### Nix
 
 Run temporarily, without installing:
 ```
@@ -45,17 +37,44 @@ To update:
 nix profile upgrade pokescope
 ```
 
-To list all packages installed via nix profile:
-```
-nix profile list
-```
-
 Or add to your flake:
 ```nix
 inputs.pokescope.url = "github:luvcie/pokescope";
 
 # then in environment.systemPackages / home.packages:
 inputs.pokescope.packages.${system}.default
+```
+
+### mise
+
+Works on Linux, macOS, and Windows. Install [mise](https://mise.jdx.dev) then:
+```
+mise use -g github:luvcie/pokescope
+```
+
+To update:
+```
+mise upgrade github:luvcie/pokescope
+```
+
+On Windows, mise's shims aren't on PATH by default. To add them for the current session:
+```powershell
+$env:Path += ";$env:LOCALAPPDATA\mise\shims"
+```
+To add them permanently (requires restarting PowerShell after):
+```powershell
+Add-Content $PROFILE "`nmise activate pwsh | Out-String | Invoke-Expression"
+```
+
+### From source
+
+Requires [Bun](https://bun.sh).
+
+```
+git clone https://github.com/luvcie/pokescope
+cd pokescope
+bun install
+bun link
 ```
 
 ## Usage

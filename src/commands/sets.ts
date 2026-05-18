@@ -1,3 +1,4 @@
+import { Dex } from '@pkmn/sim';
 import { bold, dim, cyan } from '../ansi';
 import { parseGenPrefix } from '../gen';
 import { SETS_DATA } from '../data/sets-data';
@@ -94,7 +95,23 @@ export function cmdSets(args: string[]): void {
 
   const key = Object.keys(setsFile).find(k => k.toLowerCase() === pokemonArg.toLowerCase());
   if (!key) {
-    console.error(`No sets found for '${pokemonArg}' in Gen ${genNum}.`);
+    const gensWithSets = Object.entries(SETS_DATA)
+      .filter(([, data]) => Object.keys(data as SetsFile).some(k => k.toLowerCase() === pokemonArg.toLowerCase()))
+      .sort(([a], [b]) => Number(a) - Number(b))
+      .map(([g]) => Number(g));
+
+    if (gensWithSets.length) {
+      const suggestions = gensWithSets.map(g => `sets gen${g} ${pokemonArg}`).join(', ');
+      console.error(`No sets for '${pokemonArg}' in Gen ${genNum}. Try: ${suggestions}`);
+    } else {
+      console.error(`No sets found for '${pokemonArg}' in Gen ${genNum}.`);
+    }
+
+    const species = Dex.species.get(pokemonArg);
+    if (species.evos?.length) {
+      console.log(dim(`(${pokemonArg} evolves into ${species.evos.join(', ')})`));
+    }
+
     return;
   }
 
@@ -131,5 +148,10 @@ export function cmdSets(args: string[]): void {
       }
       console.log();
     }
+  }
+
+  const species = Dex.species.get(key);
+  if (species.evos?.length) {
+    console.log(dim(`(${key} evolves into ${species.evos.join(', ')}, sets for the evolution may have different nature and stats)`));
   }
 }

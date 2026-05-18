@@ -350,9 +350,6 @@ export function cmdDexsearch(args: string[], poolOnly = false): Species[] | void
         continue;
       }
 
-      if (tlcNoSpace === 'fullyevolved') { feSearch = true; continue; }
-      if (tlcNoSpace === 'restrictedlegendary') { restrictedSearch = true; continue; }
-
       grp.skip = true;
       console.error(`Unrecognized filter: '${token}'`);
     }

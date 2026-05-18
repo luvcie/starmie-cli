@@ -101,7 +101,10 @@ export function cmdDexsearch(args: string[], poolOnly = false): Species[] | void
     gens: {}, moves: {}, resists: {}, weak: {}, formes: {}, stats: {}, flags: {}, skip: false,
   });
 
-  const commaGroups = splitFilterTokens(rest);
+  const commaGroups = splitFilterTokens(rest, s => {
+    const id = s.toLowerCase().replace(/\s+/g, '');
+    return dex.moves.get(id).exists || dex.abilities.get(id).exists || dex.species.get(id).exists;
+  });
 
   for (const commaGroup of commaGroups) {
     const alternatives = commaGroup.split('|').map(s => s.trim()).filter(Boolean).slice(0, 3);
@@ -337,7 +340,9 @@ export function cmdDexsearch(args: string[], poolOnly = false): Species[] | void
         continue;
       }
 
-      const moveObj = dex.moves.get(token);
+      const learnMatch = tlc.match(/^learns?\s+(.+)$/);
+      const moveToken = learnMatch ? learnMatch[1] : token;
+      const moveObj = dex.moves.get(moveToken);
       if (moveObj.exists) {
         grp.moves[moveObj.id] = !negate;
         continue;

@@ -81,7 +81,7 @@ export function cmdMovesearch(args: string[], poolOnly = false): Move[] | void {
     boosts: {}, lowers: {}, zboosts: {}, status: {}, volatileStatus: {}, other: {}, skip: false, invalid: false,
   });
 
-  for (const commaGroup of splitFilterTokens(rest)) {
+  for (const commaGroup of splitFilterTokens(rest, s => dex.moves.get(s.toLowerCase().replace(/\s+/g, '')).exists)) {
     const alternatives = commaGroup.split('|').map(s => s.trim()).filter(Boolean).slice(0, 3);
     const groups: MoveSearchGroup[] = alternatives.map(() => makeGroup());
 

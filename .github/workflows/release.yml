@@ -37,6 +37,6 @@ jobs:
           bun build --compile --target=bun-darwin-x64    pokescope.ts --outfile dist/pokescope-macos-x64
           bun build --compile --target=bun-darwin-arm64  pokescope.ts --outfile dist/pokescope-macos-arm64
           bun build --compile --target=bun-windows-x64   pokescope.ts --outfile dist/pokescope-windows-x64.exe
-          gh release upload ${{ steps.semantic.outputs.new_release_version }} dist/* --clobber
+          gh release upload v${{ steps.semantic.outputs.new_release_version }} dist/* --clobber
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

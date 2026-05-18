@@ -159,5 +159,13 @@ ${bold('Generation prefixes')} (supported by most commands):
   gen7  ${dim('usum, sm')}
   gen8  ${dim('ss')}
   gen9  ${dim('sv')}
+
+${bold('tldr')}
+  lookup    /data /weakness /eff /learn
+  search    /dexsearch /movesearch /itemsearch
+  battle    /coverage /counter /team /statcalc /compare
+  pokedex   /evo /moves /sets /evyield /evspread /ability /nature
+  random    /randompokemon /randommove /randomquote
+  ${dim('(the / is optional)')}
 `);
 }

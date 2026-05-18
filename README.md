@@ -73,9 +73,18 @@ Add-Content $PROFILE "`nmise activate pwsh | Out-String | Invoke-Expression"
 curl -fsSL https://raw.githubusercontent.com/luvcie/pokescope/main/install.sh | sh
 ```
 
+To uninstall: `rm ~/.local/bin/pokescope`
+
 **Windows (PowerShell):**
 ```powershell
 irm https://raw.githubusercontent.com/luvcie/pokescope/main/install.ps1 | iex
+```
+
+To uninstall:
+```powershell
+Remove-Item "$env:LOCALAPPDATA\pokescope" -Recurse -Force
+$p = [Environment]::GetEnvironmentVariable('Path', 'User')
+[Environment]::SetEnvironmentVariable('Path', $p.Replace(";$env:LOCALAPPDATA\pokescope", ''), 'User')
 ```
 
 ### From source

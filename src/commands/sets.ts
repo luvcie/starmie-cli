@@ -53,6 +53,13 @@ export function cmdSets(args: string[]): void {
 
   const raw = args.join(' ');
   const { genMod, rest } = parseGenPrefix(raw);
+  if (!genMod) {
+    const firstWord = raw.split(/\s+/)[0];
+    if (/^gen\d+$/i.test(firstWord)) {
+      console.error(`'${firstWord}' is not a valid generation. Use gen1-gen9.`);
+      return;
+    }
+  }
   const genNum = genMod ? parseInt(genMod.replace('gen', ''), 10) : 9;
 
   if (!rest.trim()) {

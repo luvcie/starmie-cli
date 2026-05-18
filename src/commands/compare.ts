@@ -15,15 +15,33 @@ export function cmdCompare(args: string[]): void {
 
   const { dex, targets } = splitGen(args);
 
-  if (targets.length < 2) {
+  if (targets.length > 2) {
+    console.error('compare only supports 2 pokemon at a time.');
+    return;
+  }
+
+  let resolvedTargets = targets;
+  if (targets.length === 1 && !dex.species.get(targets[0]).exists) {
+    const words = targets[0].split(/\s+/);
+    for (let split = 1; split < words.length; split++) {
+      const left = words.slice(0, split).join(' ');
+      const right = words.slice(split).join(' ');
+      if (dex.species.get(left).exists && dex.species.get(right).exists) {
+        resolvedTargets = [left, right];
+        break;
+      }
+    }
+  }
+
+  if (resolvedTargets.length < 2) {
     console.log('Usage: compare [gen] <pokemon1>, <pokemon2>');
     return;
   }
 
-  const [a, b] = [dex.species.get(targets[0]), dex.species.get(targets[1])];
+  const [a, b] = [dex.species.get(resolvedTargets[0]), dex.species.get(resolvedTargets[1])];
 
-  if (!a.exists) { console.error(`'${targets[0]}' not found.`); return; }
-  if (!b.exists) { console.error(`'${targets[1]}' not found.`); return; }
+  if (!a.exists) { console.error(`'${resolvedTargets[0]}' not found.`); return; }
+  if (!b.exists) { console.error(`'${resolvedTargets[1]}' not found.`); return; }
 
   const genLabel = dex !== Dex ? dim(` [${dex.currentMod}]`) : '';
   const nameA = a.name;

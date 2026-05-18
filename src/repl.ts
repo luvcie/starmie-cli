@@ -33,12 +33,12 @@ const COMMANDS = [
   'movesearch', 'ms',
   'itemsearch', 'is',
   'statcalc',
-  'randompokemon', 'randpoke', 'rollpokemon', 'rp',
+  'randompokemon', 'random', 'randpoke', 'rollpokemon', 'rp',
   'randommove', 'randmove', 'rollmove', 'rm',
   'evyield',
   'nature',
   'evspread',
-  'ability',
+  'ability', 'abilities',
   'team',
   'compare',
   'counter',
@@ -130,6 +130,7 @@ function dispatch(cmd: string, args: string[]): void {
     cmdEvspread(args);
     break;
   case 'ability':
+  case 'abilities':
     cmdAbilities(args);
     break;
   case 'team':
@@ -153,6 +154,7 @@ function dispatch(cmd: string, args: string[]): void {
     cmdChain(args);
     break;
   case 'randompokemon':
+  case 'random':
   case 'randpoke':
   case 'rollpokemon':
   case 'rp':

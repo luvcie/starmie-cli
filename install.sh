@@ -1,0 +1,36 @@
+#!/bin/sh
+set -e
+
+VERSION=$(curl -fsSL https://api.github.com/repos/luvcie/pokescope/releases/latest | grep '"tag_name"' | sed 's/.*"tag_name": *"v\([^"]*\)".*/\1/')
+
+OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+ARCH=$(uname -m)
+
+case "$OS" in
+  linux)  OS="linux" ;;
+  darwin) OS="macos" ;;
+  *)      echo "Unsupported OS: $OS" && exit 1 ;;
+esac
+
+case "$ARCH" in
+  x86_64)          ARCH="x64" ;;
+  aarch64 | arm64) ARCH="arm64" ;;
+  *)               echo "Unsupported architecture: $ARCH" && exit 1 ;;
+esac
+
+BINARY="pokescope-${OS}-${ARCH}"
+URL="https://github.com/luvcie/pokescope/releases/download/v${VERSION}/${BINARY}"
+INSTALL_DIR="$HOME/.local/bin"
+
+mkdir -p "$INSTALL_DIR"
+
+echo "Downloading pokescope ${VERSION}..."
+curl -fsSL "$URL" -o "$INSTALL_DIR/pokescope"
+chmod +x "$INSTALL_DIR/pokescope"
+
+echo "Installed to $INSTALL_DIR/pokescope"
+
+case ":$PATH:" in
+  *":$INSTALL_DIR:"*) ;;
+  *) echo "Note: add $INSTALL_DIR to your PATH if it isn't already." ;;
+esac

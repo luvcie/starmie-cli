@@ -18,7 +18,7 @@ Also thanks to my fren William for helping me choose the name. :)
 
 ## Install
 
-[Nix](#nix) · [mise](#mise) · [From source](#from-source)
+[Nix](#nix) · [mise](#mise) · [curl](#curl) · [From source](#from-source)
 
 ### Nix
 
@@ -64,6 +64,18 @@ $env:Path += ";$env:LOCALAPPDATA\mise\shims"
 To add them permanently (requires restarting PowerShell after):
 ```powershell
 Add-Content $PROFILE "`nmise activate pwsh | Out-String | Invoke-Expression"
+```
+
+### curl
+
+**Linux and macOS:**
+```sh
+curl -fsSL https://raw.githubusercontent.com/luvcie/pokescope/main/install.sh | sh
+```
+
+**Windows (PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/luvcie/pokescope/main/install.ps1 | iex
 ```
 
 ### From source

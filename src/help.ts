@@ -148,6 +148,14 @@ const COMMAND_DETAILS: Record<string, string> = {
 
   randomquote: `${blue('randomquote')}  ${dim('Alias: rq')}
   Print a random Pokemon quote.`,
+
+  config: `${blue('config')} <setting> <value>
+  Manage pokescope settings.
+  Settings:
+    update-check on|off   check for a new version on startup
+  e.g. config update-check on
+       config update-check off
+       config              (shows current settings)`,
 };
 
 const ALIASES: Record<string, string> = {
@@ -219,6 +227,8 @@ ${section('random')}
 ${line('randompokemon', 'Random pokemon, optionally filtered.', 'rp, random')}
 ${line('randommove', 'Random move, optionally filtered.', 'rm')}
 ${line('randomquote', 'Random pokemon quote.', 'rq')}
+${section('settings')}
+${line('config', 'Manage settings (e.g. update checks).')}
 
   ${dim('Type')} help <command> ${dim('for examples.  e.g.')} help weakness
 

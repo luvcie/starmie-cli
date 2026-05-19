@@ -1,6 +1,6 @@
 import * as readline from 'readline';
 import { Dex } from '@pkmn/sim';
-import { bold, cyan, blue, B, CYAN, R } from './ansi';
+import { bold, cyan, blue, dim, B, CYAN, R } from './ansi';
 import { showHelp } from './help';
 import { cmdWeakness } from './commands/weakness';
 import { cmdEffectiveness } from './commands/effectiveness';
@@ -22,6 +22,8 @@ import { cmdCounter } from './commands/counter';
 import { cmdSets } from './commands/sets';
 import { cmdMoves } from './commands/moves';
 import { cmdChain } from './commands/chain';
+import { cmdConfig } from './commands/config';
+import { isFirstRun, setUpdateCheck, getUpdateCheckSetting, checkForUpdates } from './config';
 
 const COMMANDS = [
   'weakness', 'weak', 'weaknesses', 'resist',
@@ -46,6 +48,7 @@ const COMMANDS = [
   'moves',
   'evo', 'evochain', 'chain',
   'randomquote', 'rq',
+  'config',
   'help', 'exit', 'quit',
 ];
 
@@ -170,6 +173,9 @@ function dispatch(cmd: string, args: string[]): void {
   case 'rq':
     cmdRandomQuote();
     break;
+  case 'config':
+    cmdConfig(args);
+    break;
   case 'help':
   case '--help':
   case '-h':
@@ -192,6 +198,32 @@ if (argv.length > 0) {
   dispatch(cmd, rest);
 } else {
   console.log(`${bold('pokescope')} ${randKaomoji()} type ${blue('help')} to see available commands, ${blue('exit')} to quit.\n`);
+
+  if (isFirstRun()) {
+    await new Promise<void>(resolve => {
+      const tmp = readline.createInterface({ input: process.stdin, output: process.stdout });
+      tmp.question('check for updates on startup? [y/n] ', answer => {
+        tmp.close();
+        const enabled = answer.trim().toLowerCase() === 'y';
+        setUpdateCheck(enabled);
+        if (enabled) {
+          console.log(dim('Got it. Disable later with: config update-check off') + '\n');
+        } else {
+          console.log(dim('Got it. Enable later with: config update-check on') + '\n');
+        }
+        resolve();
+      });
+    });
+  }
+
+  if (getUpdateCheckSetting()) {
+    const { version } = await import('../package.json');
+    const timeout = new Promise<null>(r => setTimeout(() => r(null), 3000));
+    const latest = await Promise.race([checkForUpdates(version), timeout]);
+    if (latest) {
+      console.log(dim(`  update available: v${version} → v${latest}  (github.com/luvcie/pokescope/releases)\n`));
+    }
+  }
 
   const rl = readline.createInterface({
     input: process.stdin,

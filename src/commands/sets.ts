@@ -1,6 +1,6 @@
 import { Dex } from '@pkmn/sim';
 import { bold, dim, cyan } from '../ansi';
-import { parseGenPrefix } from '../gen';
+import { parseGenPrefix, GEN_PATTERN, GEN_ALIASES } from '../gen';
 import { SETS_DATA } from '../data/sets-data';
 
 type MoveSlot = string | string[];
@@ -52,12 +52,20 @@ export function cmdSets(args: string[]): void {
   }
 
   const raw = args.join(' ');
-  const { genMod, rest } = parseGenPrefix(raw);
+  let { genMod, rest } = parseGenPrefix(raw);
   if (!genMod) {
     const firstWord = raw.split(/\s+/)[0];
     if (/^gen\d+$/i.test(firstWord)) {
       console.error(`'${firstWord}' is not a valid generation. Use gen1-gen9.`);
       return;
+    }
+    // Gen token might appear anywhere, e.g. "chansey bw ou"
+    const tokens = rest.trim().split(/\s+/);
+    const genIdx = tokens.findIndex(t => GEN_PATTERN.test(t.toLowerCase()));
+    if (genIdx !== -1) {
+      const rawGen = tokens[genIdx].toLowerCase();
+      genMod = GEN_ALIASES[rawGen] ?? rawGen;
+      rest = [...tokens.slice(0, genIdx), ...tokens.slice(genIdx + 1)].join(' ');
     }
   }
   const genNum = genMod ? parseInt(genMod.replace('gen', ''), 10) : 9;

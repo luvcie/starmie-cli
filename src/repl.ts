@@ -173,7 +173,7 @@ function dispatch(cmd: string, args: string[]): void {
   case 'help':
   case '--help':
   case '-h':
-    showHelp();
+    showHelp(args);
     break;
   default:
     console.error(`Unknown command: ${cmd}. Type ${cyan('help')} to see available commands.`);

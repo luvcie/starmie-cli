@@ -1,48 +1,50 @@
 import { blue, bold, dim } from './ansi';
 
-export function showHelp(): void {
-  console.log(`
-${blue('weakness')} [gen] <pokemon|type[,type2]> [inverse]
+const COMMAND_DETAILS: Record<string, string> = {
+  weakness: `${blue('weakness')} [gen] <pokemon|type[,type2]> [inverse]
   Weaknesses, resistances, and immunities.
   e.g. weakness charizard
        weakness fire,flying
        weakness water inverse
-       weakness gen6, charizard
+       weakness gen6, charizard`,
 
-${blue('eff')} [gen] <move|type>, <pokemon|type>
+  eff: `${blue('eff')} [gen] <move|type>, <pokemon|type>
   Type effectiveness of a move or type against a defender.
   e.g. eff earthquake, charizard
        eff freeze-dry, vaporeon
-       eff gen4, water, fire
+       eff gen4, water, fire`,
 
-${blue('data')} [gen] <name|dex number>
+  data: `${blue('data')} [gen] <name|dex number>  ${dim('Aliases: dex, dt')}
   Pokedex entry for a Pokemon, move, item, ability, or nature.
   e.g. data garchomp
        data 248
        data earthquake
-       data gen6, choice band
+       data gen6, choice band`,
 
-${blue('coverage')} [gen] <move1[,move2,move3,move4]>
+  coverage: `${blue('coverage')} [gen] <move1[,move2,move3,move4]>
   Best type coverage for a set of up to 4 moves or types.
   e.g. coverage surf,thunderbolt,icebeam,earthquake
-       coverage gen5, freeze-dry, flying press
+       coverage gen5, freeze-dry, flying press`,
 
-${blue('learn')} [gen] <pokemon>, <move>[, move2, ...]
+  learn: `${blue('learn')} [gen] <pokemon>, <move>[, move2, ...]
   Check if a pokemon can learn a move (or combination), and how.
   e.g. learn pikachu, thunderbolt
        learn gen6, togekiss, nasty plot
+       learn gen8, umbreon, wish`,
 
-${blue('dexsearch')} [gen] <filter>[, filter, ...]
+  dexsearch: `${blue('dexsearch')} [gen] <filter>[, filter, ...]  ${dim('Aliases: ds, nds')}
   Search for Pokemon matching criteria.
+  Filters: type, tier, ability, fully evolved, egg group, hp/atk/def/spa/spd/spe/bst > N,
+  learns <move>, resists/weak <type>, sort by stat
   e.g. dexsearch fire, ou
        dexsearch dragon, spe > 100
        dexsearch intimidate, !mega
        dexsearch grass, egg group grass, fully evolved
        dexsearch resists ground, weak ice, ou
-       dexsearch earthquake, spe asc
+       dexsearch earthquake, spe asc`,
 
-${blue('movesearch')} [gen] <filter>[, filter, ...]
-  Search for moves matching criteria. Aliases: ms
+  movesearch: `${blue('movesearch')} [gen] <filter>[, filter, ...]  ${dim('Alias: ms')}
+  Search for moves matching criteria.
   Filters: type, physical/special/status, contact, sound, punch, bullet, bite,
   dance, heal, recharge, protect, pulse, slicing, wind, powder, secondary,
   highcrit, multihit, ohko, priority+/-, bp/accuracy/pp/priority > N,
@@ -52,120 +54,179 @@ ${blue('movesearch')} [gen] <filter>[, filter, ...]
        movesearch contact, priority+
        movesearch boosts atk, special
        movesearch sound, !status
-       movesearch garchomp
+       movesearch garchomp`,
 
-${blue('itemsearch')} <description words>  Alias: is
+  itemsearch: `${blue('itemsearch')} <description words>  ${dim('Alias: is')}
   Search items by description text. Special keywords: fling <bp>, natural gift <type>.
   e.g. itemsearch raises speed in sandstorm
        itemsearch restores hp
        itemsearch fling 90
        itemsearch natural gift fire
-       itemsearch berry, gen4
+       itemsearch berry, gen4`,
 
-${blue('nature')} [name]
+  nature: `${blue('nature')} [name]
   Show stat changes for a nature, or list all 25 natures with their effects.
   e.g. nature jolly
        nature timid
-       nature
+       nature`,
 
-${blue('counter')} [gen] <move|type> [, pokemon1, pokemon2, ...]
+  counter: `${blue('counter')} [gen] <move|type> [, pokemon1, pokemon2, ...]
   Show which types resist or are immune to a move/type. If pokemon are given,
   filters to just your team and groups them by immune, resists, neutral, weak.
   e.g. counter earthquake
        counter fire
-       counter earthquake, garchomp, rotom-wash, blissey, salamence
+       counter earthquake, garchomp, rotom-wash, blissey, salamence`,
 
-${blue('compare')} [gen] <pokemon1>, <pokemon2>
+  compare: `${blue('compare')} [gen] <pokemon1>, <pokemon2>
   Side-by-side base stat comparison.
   e.g. compare garchomp, dragonite
        compare gen4, garchomp, salamence
+       compare iron moth volcarona`,
 
-${blue('team')} [gen] <pokemon1>, <pokemon2>[, ...]
+  team: `${blue('team')} [gen] <pokemon1>, <pokemon2>[, ...]
   Team weakness analysis: shared weaknesses and types no member resists.
   e.g. team charizard, blastoise, venusaur
-       team bw, garchomp, ferrothorn, politoed
+       team bw, garchomp, ferrothorn, politoed`,
 
-${blue('ability')} [gen] <ability>
+  ability: `${blue('ability')} [gen] <ability>  ${dim('Alias: abilities')}
   List all Pokemon with a given ability, grouped by regular vs hidden.
   e.g. ability intimidate
        ability bw, speed boost
-       ability gen4, levitate
+       ability gen4, levitate`,
 
-${blue('evspread')} [gen] <stat>
+  evspread: `${blue('evspread')} [gen] <stat>
   List all Pokemon that give EVs in a stat, grouped by yield amount.
   e.g. evspread atk
        evspread bw atk
-       evspread gen3, speed
+       evspread gen3, speed`,
 
-${blue('evyield')} <pokemon>  Alias: ev
+  evyield: `${blue('evyield')} <pokemon>  ${dim('Alias: ev')}
   EV yield when defeating a Pokemon.
   e.g. evyield blissey
-       evyield nidoran-m
+       evyield nidoran-m`,
 
-${blue('statcalc')} [level] [pokemon or base stat] [stat] [ivs] [evs] [nature] [modifier]
+  statcalc: `${blue('statcalc')} [level] [pokemon or base stat] [stat] [ivs] [evs] [nature] [modifier]
   Calculate the final value of a stat.
   note: level must use lv prefix (lv50, lv1), bare numbers are treated as base stats.
   e.g. statcalc lv50 garchomp spe 252+ scarf
        statcalc 100 252ev positive +1
-       statcalc lc 45 atk uninvested
+       statcalc lc 45 atk uninvested`,
 
-${blue('randompokemon')} [count] [filters]  Alias: rp
-  Random Pokémon, optionally filtered by dexsearch criteria.
+  randompokemon: `${blue('randompokemon')} [count] [filters]  ${dim('Aliases: rp, random')}
+  Random Pokemon, optionally filtered by dexsearch criteria.
   e.g. randompokemon
        randompokemon 3
        randompokemon fire, ou
-       randompokemon 3 dragon, spe > 100
+       randompokemon 3 dragon, spe > 100`,
 
-${blue('randommove')} [count] [filters]  Alias: rm
+  randommove: `${blue('randommove')} [count] [filters]  ${dim('Alias: rm')}
   Random move, optionally filtered by movesearch criteria.
   e.g. randommove
        randommove 5
        randommove water, special
-       randommove 3 bp > 90, contact
+       randommove 3 bp > 90, contact`,
 
-${blue('evo')} [gen] <pokemon>   (aliases: evochain, chain)
+  evo: `${blue('evo')} [gen] <pokemon>  ${dim('Aliases: evochain, chain')}
   Evolution chain for a Pokemon, showing evo methods.
   e.g. evo gastly
        evo haunter
-       evo eevee
+       evo eevee`,
 
-${blue('moves')} [gen] <pokemon>
+  moves: `${blue('moves')} [gen] <pokemon>
   Full learnset for a Pokemon grouped by method (level-up, TM/HM, egg, tutor, etc.)
   e.g. moves gengar
        moves bw gengar
-       moves gen4 togekiss
+       moves gen4 togekiss`,
 
-${blue('sets')} [gen] <pokemon> [, tier]  ${dim('Alias: smogon')}
+  sets: `${blue('sets')} [gen] <pokemon> [, tier]  ${dim('Alias: smogon')}
   Competitive sets for a Pokemon from Smogon, grouped by tier.
   Move slots with multiple options are shown as A / B.
   e.g. sets bw chansey
        sets bw gengar
        sets gengar, ou
-       sets gen4 garchomp
+       sets gen4 garchomp`,
 
-${blue('randomquote')}  Alias: rq
-  Print a random Pokémon quote.
+  randomquote: `${blue('randomquote')}  ${dim('Alias: rq')}
+  Print a random Pokemon quote.`,
+};
 
-${blue('help')}  Show this help.
-${blue('exit')}  Exit the program.  ${dim('(REPL mode only)')}
+const ALIASES: Record<string, string> = {
+  weak: 'weakness', weaknesses: 'weakness', resist: 'weakness',
+  effectiveness: 'eff', type: 'eff', matchup: 'eff',
+  dex: 'data', dt: 'data',
+  cover: 'coverage',
+  learnset: 'learn',
+  ds: 'dexsearch', nds: 'dexsearch',
+  ms: 'movesearch',
+  is: 'itemsearch',
+  smogon: 'sets',
+  ev: 'evyield',
+  rp: 'randompokemon', randpoke: 'randompokemon', rollpokemon: 'randompokemon', random: 'randompokemon',
+  rm: 'randommove', randmove: 'randommove', rollmove: 'randommove',
+  rq: 'randomquote',
+  evochain: 'evo', chain: 'evo',
+  abilities: 'ability',
+};
 
-${bold('Generation prefixes')} (supported by most commands):
-  gen1  ${dim('rby, rb')}
-  gen2  ${dim('gsc, gs')}
-  gen3  ${dim('adv, rs')}
-  gen4  ${dim('dpp, dp')}
-  gen5  ${dim('bw, bw2')}
-  gen6  ${dim('oras, xy')}
-  gen7  ${dim('usum, sm')}
-  gen8  ${dim('ss')}
-  gen9  ${dim('sv')}
-
-${bold('tldr')}
-  lookup    /data /weakness /eff /learn
-  search    /dexsearch /movesearch /itemsearch
-  battle    /coverage /counter /team /statcalc /compare
-  pokedex   /evo /moves /sets /evyield /evspread /ability /nature
-  random    /randompokemon /randommove /randomquote
-  ${dim('(the / is optional)')}
-`);
+function line(cmd: string, desc: string, aliases?: string): string {
+  const aliasStr = aliases ? `  ${dim('Alias: ' + aliases)}` : '';
+  return `  ${blue(('/' + cmd).padEnd(16))}${desc}${aliasStr}`;
 }
+
+function section(name: string): string {
+  return `\n${bold(name)}`;
+}
+
+export function showHelp(args?: string[]): void {
+  if (args && args.length > 0) {
+    const cmd = args[0].toLowerCase().replace(/^\//, '');
+    const canonical = ALIASES[cmd] ?? cmd;
+    const detail = COMMAND_DETAILS[canonical];
+    if (detail) {
+      console.log('\n' + detail + '\n');
+    } else {
+      console.error(`No help for '${cmd}'. Type help to list all commands.`);
+    }
+    return;
+  }
+
+  console.log(`
+${bold('Commands')}  ${dim('(the / is optional)')}
+${section('lookup')}
+${line('weakness', 'Weaknesses, resistances and immunities.')}
+${line('eff', 'Type effectiveness of a move against a defender.')}
+${line('data', 'Pokedex entry for a pokemon, move, item, ability, or nature.', 'dex, dt')}
+${line('learn', 'Check if a pokemon can learn a move, and how.')}
+${section('search')}
+${line('dexsearch', 'Search pokemon by type, tier, ability, stats, and more.', 'ds')}
+${line('movesearch', 'Search moves by type, category, power, and more.', 'ms')}
+${line('itemsearch', 'Search items by description.', 'is')}
+${section('battle')}
+${line('coverage', 'Best type coverage for up to 4 moves or types.')}
+${line('counter', 'Which types resist a move. Can filter by your team.')}
+${line('team', 'Team weakness analysis.')}
+${line('statcalc', 'Calculate the final value of a stat.')}
+${line('compare', 'Side-by-side base stat comparison of two pokemon.')}
+${section('pokedex')}
+${line('evo', 'Evolution chain for a pokemon.', 'chain')}
+${line('moves', 'Full learnset for a pokemon.')}
+${line('sets', 'Competitive sets from Smogon.', 'smogon')}
+${line('evyield', 'EV yield when defeating a pokemon.', 'ev')}
+${line('evspread', 'All pokemon that give EVs in a stat.')}
+${line('ability', 'List all pokemon with a given ability.', 'abilities')}
+${line('nature', 'Stat changes for a nature, or list all 25.')}
+${section('random')}
+${line('randompokemon', 'Random pokemon, optionally filtered.', 'rp, random')}
+${line('randommove', 'Random move, optionally filtered.', 'rm')}
+${line('randomquote', 'Random pokemon quote.', 'rq')}
+
+  ${dim('Type')} help <command> ${dim('for examples.  e.g.')} help weakness
+
+${bold('Generation prefixes')} ${dim('(supported by most commands)')}
+  gen1  ${dim('rby, rb')}       gen5  ${dim('bw, bw2')}
+  gen2  ${dim('gsc, gs')}       gen6  ${dim('oras, xy')}
+  gen3  ${dim('adv, rs')}       gen7  ${dim('usum, sm')}
+  gen4  ${dim('dpp, dp')}       gen8  ${dim('ss')}
+                      gen9  ${dim('sv')}
+`);}
+

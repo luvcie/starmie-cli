@@ -10,12 +10,13 @@ const STAT_LABELS: Record<string, string> = {
 type Mods = { evi: boolean; lb: boolean };
 
 function extractMods(s: string): { name: string; mods: Mods } {
-  const words = s.trim().split(/\s+/);
+  const normalized = s.trim().replace(/\blight[\s-]+ball\b/gi, 'lightball');
+  const words = normalized.split(/\s+/);
   let evi = false, lb = false;
   const remaining = words.filter(w => {
     const lc = w.toLowerCase();
     if (lc === 'eviolite') { evi = true; return false; }
-    if (lc === 'lightball' || lc === 'light-ball') { lb = true; return false; }
+    if (lc === 'lightball') { lb = true; return false; }
     return true;
   });
   return { name: remaining.join(' ').trim(), mods: { evi, lb } };

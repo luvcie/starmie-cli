@@ -7,15 +7,62 @@ const STAT_LABELS: Record<string, string> = {
   hp: 'HP', atk: 'Atk', def: 'Def', spa: 'SpA', spd: 'SpD', spe: 'Spe',
 };
 
-function extractEviolite(s: string): { name: string; evi: boolean } {
+type Mods = { evi: boolean; lb: boolean };
+
+function extractMods(s: string): { name: string; mods: Mods } {
   const words = s.trim().split(/\s+/);
-  const idx = words.findIndex(w => w.toLowerCase() === 'eviolite');
-  if (idx === -1) return { name: s.trim(), evi: false };
-  return { name: [...words.slice(0, idx), ...words.slice(idx + 1)].join(' ').trim(), evi: true };
+  let evi = false, lb = false;
+  const remaining = words.filter(w => {
+    const lc = w.toLowerCase();
+    if (lc === 'eviolite') { evi = true; return false; }
+    if (lc === 'lightball' || lc === 'light-ball') { lb = true; return false; }
+    return true;
+  });
+  return { name: remaining.join(' ').trim(), mods: { evi, lb } };
 }
 
-function applyEviolite(stats: Record<string, number>) {
-  return { ...stats, def: Math.floor(stats.def * 1.5), spd: Math.floor(stats.spd * 1.5) };
+function applyBaseMods(stats: Record<string, number>, mods: Mods) {
+  const s = { ...stats };
+  if (mods.evi) { s.def = Math.floor(s.def * 1.5); s.spd = Math.floor(s.spd * 1.5); }
+  if (mods.lb)  { s.atk = s.atk * 2; s.spa = s.spa * 2; }
+  return s;
+}
+
+// level 100, 31 IVs, 0 EVs, neutral nature
+function calcLv100(base: Record<string, number>) {
+  return {
+    hp:  2 * base.hp  + 31 + 110,
+    atk: 2 * base.atk + 31 + 5,
+    def: 2 * base.def + 31 + 5,
+    spa: 2 * base.spa + 31 + 5,
+    spd: 2 * base.spd + 31 + 5,
+    spe: 2 * base.spe + 31 + 5,
+  };
+}
+
+function applyLv100Mods(stats: Record<string, number>, mods: Mods) {
+  const s = { ...stats };
+  if (mods.evi) { s.def = Math.floor(s.def * 1.5); s.spd = Math.floor(s.spd * 1.5); }
+  if (mods.lb)  { s.atk = s.atk * 2; s.spa = s.spa * 2; }
+  return s;
+}
+
+function printTable(labelW: number, colW: number, headerA: string, headerB: string, statsA: Record<string, number>, statsB: Record<string, number>, showBst: boolean) {
+  console.log(' '.repeat(labelW + 2) + headerA.padStart(colW) + headerB.padStart(colW));
+  const bstA = STATS.reduce((s, k) => s + statsA[k], 0);
+  const bstB = STATS.reduce((s, k) => s + statsB[k], 0);
+  for (const stat of STATS) {
+    const vA = statsA[stat], vB = statsB[stat];
+    const label = STAT_LABELS[stat].padEnd(labelW);
+    const fmtA = vA > vB ? green(String(vA).padStart(colW)) : vA < vB ? red(String(vA).padStart(colW)) : String(vA).padStart(colW);
+    const fmtB = vB > vA ? green(String(vB).padStart(colW)) : vB < vA ? red(String(vB).padStart(colW)) : String(vB).padStart(colW);
+    console.log(`  ${label}${fmtA}${fmtB}`);
+  }
+  if (showBst) {
+    const fA = bstA > bstB ? green(String(bstA).padStart(colW)) : bstA < bstB ? red(String(bstA).padStart(colW)) : String(bstA).padStart(colW);
+    const fB = bstB > bstA ? green(String(bstB).padStart(colW)) : bstB < bstA ? red(String(bstB).padStart(colW)) : String(bstB).padStart(colW);
+    console.log(`  ${'BST'.padEnd(labelW)}${fA}${fB}`);
+  }
 }
 
 export function cmdCompare(args: string[]): void {
@@ -32,33 +79,35 @@ export function cmdCompare(args: string[]): void {
   }
 
   let resolvedTargets = targets;
-  let eviA = false;
-  let eviB = false;
+  let modsA: Mods = { evi: false, lb: false };
+  let modsB: Mods = { evi: false, lb: false };
 
   if (targets.length === 2) {
-    const pA = extractEviolite(targets[0]);
-    const pB = extractEviolite(targets[1]);
+    const pA = extractMods(targets[0]);
+    const pB = extractMods(targets[1]);
     resolvedTargets = [pA.name, pB.name];
-    eviA = pA.evi;
-    eviB = pB.evi;
+    modsA = pA.mods;
+    modsB = pB.mods;
   } else if (targets.length === 1) {
     const words = targets[0].split(/\s+/);
-    const eviIdx = words.findIndex(w => w.toLowerCase() === 'eviolite');
-    const stripped = eviIdx !== -1 ? [...words.slice(0, eviIdx), ...words.slice(eviIdx + 1)] : words;
+    const { name: stripped, mods } = extractMods(targets[0]);
+    const strippedWords = stripped.split(/\s+/);
 
-    if (!dex.species.get(stripped.join(' ')).exists) {
-      for (let split = 1; split < stripped.length; split++) {
-        const left = stripped.slice(0, split).join(' ');
-        const right = stripped.slice(split).join(' ');
+    if (!dex.species.get(stripped).exists) {
+      for (let split = 1; split < strippedWords.length; split++) {
+        const left = strippedWords.slice(0, split).join(' ');
+        const right = strippedWords.slice(split).join(' ');
         if (dex.species.get(left).exists && dex.species.get(right).exists) {
           resolvedTargets = [left, right];
-          if (eviIdx !== -1) {
-            eviA = eviIdx <= split;
-            eviB = eviIdx > split;
-          }
+          const eviIdx = words.findIndex(w => w.toLowerCase() === 'eviolite');
+          const lbIdx  = words.findIndex(w => w.toLowerCase() === 'lightball' || w.toLowerCase() === 'light-ball');
+          if (eviIdx !== -1) { modsA.evi = eviIdx <= split; modsB.evi = eviIdx > split; }
+          if (lbIdx  !== -1) { modsA.lb  = lbIdx  <= split; modsB.lb  = lbIdx  > split; }
           break;
         }
       }
+    } else {
+      modsA = mods;
     }
   }
 
@@ -71,41 +120,36 @@ export function cmdCompare(args: string[]): void {
   if (!a.exists) { console.error(`'${resolvedTargets[0]}' not found.`); return; }
   if (!b.exists) { console.error(`'${resolvedTargets[1]}' not found.`); return; }
 
-  if (eviA && !a.evos?.length) {
-    console.log(dim(`(${a.name} is fully evolved, eviolite has no effect)`));
-    eviA = false;
-  }
-  if (eviB && !b.evos?.length) {
-    console.log(dim(`(${b.name} is fully evolved, eviolite has no effect)`));
-    eviB = false;
-  }
+  if (modsA.evi && !a.evos?.length) { console.log(dim(`(${a.name} is fully evolved, eviolite has no effect)`)); modsA.evi = false; }
+  if (modsB.evi && !b.evos?.length) { console.log(dim(`(${b.name} is fully evolved, eviolite has no effect)`)); modsB.evi = false; }
+  if (modsA.lb && a.baseSpecies !== 'Pikachu') { console.log(dim(`(light ball only works for Pikachu)`)); modsA.lb = false; }
+  if (modsB.lb && b.baseSpecies !== 'Pikachu') { console.log(dim(`(light ball only works for Pikachu)`)); modsB.lb = false; }
 
-  const statsA = eviA ? applyEviolite(a.baseStats) : a.baseStats;
-  const statsB = eviB ? applyEviolite(b.baseStats) : b.baseStats;
+  const anyMod = modsA.evi || modsA.lb || modsB.evi || modsB.lb;
+  const baseA = applyBaseMods(a.baseStats, modsA);
+  const baseB = applyBaseMods(b.baseStats, modsB);
 
   const genLabel = dex !== Dex ? dim(` [${dex.currentMod}]`) : '';
-  const displayA = a.name + (eviA ? '+Evi' : '');
-  const displayB = b.name + (eviB ? '+Evi' : '');
-  const colW = Math.max(displayA.length, displayB.length, 6) + 2;
+  const modLabelA = modsA.evi ? '+Evi' : modsA.lb ? '+LB' : '';
+  const modLabelB = modsB.evi ? '+Evi' : modsB.lb ? '+LB' : '';
+  const displayA = a.name + modLabelA;
+  const displayB = b.name + modLabelB;
   const labelW = 4;
+  const colW = Math.max(displayA.length, displayB.length, 6) + 2;
 
-  console.log(`\n${bold(a.name)}${eviA ? dim(' +Eviolite') : ''} vs ${bold(b.name)}${eviB ? dim(' +Eviolite') : ''}${genLabel}\n`);
-  console.log(' '.repeat(labelW + 2) + displayA.padStart(colW) + displayB.padStart(colW));
+  const modTitleA = modsA.evi ? dim(' +Eviolite') : modsA.lb ? dim(' +Light Ball') : '';
+  const modTitleB = modsB.evi ? dim(' +Eviolite') : modsB.lb ? dim(' +Light Ball') : '';
+  console.log(`\n${bold(a.name)}${modTitleA} vs ${bold(b.name)}${modTitleB}${genLabel}\n`);
 
-  const bstA = STATS.reduce((s, k) => s + statsA[k], 0);
-  const bstB = STATS.reduce((s, k) => s + statsB[k], 0);
+  if (anyMod) console.log(dim('  base stats'));
+  printTable(labelW, colW, displayA, displayB, baseA, baseB, true);
 
-  for (const stat of STATS) {
-    const vA = statsA[stat];
-    const vB = statsB[stat];
-    const label = STAT_LABELS[stat].padEnd(labelW);
-    const fmtA = vA > vB ? green(String(vA).padStart(colW)) : vA < vB ? red(String(vA).padStart(colW)) : String(vA).padStart(colW);
-    const fmtB = vB > vA ? green(String(vB).padStart(colW)) : vB < vA ? red(String(vB).padStart(colW)) : String(vB).padStart(colW);
-    console.log(`  ${label}${fmtA}${fmtB}`);
+  if (anyMod) {
+    const lv100A = applyLv100Mods(calcLv100(a.baseStats), modsA);
+    const lv100B = applyLv100Mods(calcLv100(b.baseStats), modsB);
+    console.log(dim('\n  lv.100 — 31 IVs, 0 EVs, neutral nature'));
+    printTable(labelW, colW, displayA, displayB, lv100A, lv100B, false);
   }
 
-  const fmtBstA = bstA > bstB ? green(String(bstA).padStart(colW)) : bstA < bstB ? red(String(bstA).padStart(colW)) : String(bstA).padStart(colW);
-  const fmtBstB = bstB > bstA ? green(String(bstB).padStart(colW)) : bstB < bstA ? red(String(bstB).padStart(colW)) : String(bstB).padStart(colW);
-  console.log(`  ${'BST'.padEnd(labelW)}${fmtBstA}${fmtBstB}`);
   console.log();
 }

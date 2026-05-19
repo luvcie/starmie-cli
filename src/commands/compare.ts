@@ -7,6 +7,17 @@ const STAT_LABELS: Record<string, string> = {
   hp: 'HP', atk: 'Atk', def: 'Def', spa: 'SpA', spd: 'SpD', spe: 'Spe',
 };
 
+function extractEviolite(s: string): { name: string; evi: boolean } {
+  const words = s.trim().split(/\s+/);
+  const idx = words.findIndex(w => w.toLowerCase() === 'eviolite');
+  if (idx === -1) return { name: s.trim(), evi: false };
+  return { name: [...words.slice(0, idx), ...words.slice(idx + 1)].join(' ').trim(), evi: true };
+}
+
+function applyEviolite(stats: Record<string, number>) {
+  return { ...stats, def: Math.floor(stats.def * 1.5), spd: Math.floor(stats.spd * 1.5) };
+}
+
 export function cmdCompare(args: string[]): void {
   if (!args.length) {
     console.log('Usage: compare [gen] <pokemon1>, <pokemon2>');
@@ -21,14 +32,32 @@ export function cmdCompare(args: string[]): void {
   }
 
   let resolvedTargets = targets;
-  if (targets.length === 1 && !dex.species.get(targets[0]).exists) {
+  let eviA = false;
+  let eviB = false;
+
+  if (targets.length === 2) {
+    const pA = extractEviolite(targets[0]);
+    const pB = extractEviolite(targets[1]);
+    resolvedTargets = [pA.name, pB.name];
+    eviA = pA.evi;
+    eviB = pB.evi;
+  } else if (targets.length === 1) {
     const words = targets[0].split(/\s+/);
-    for (let split = 1; split < words.length; split++) {
-      const left = words.slice(0, split).join(' ');
-      const right = words.slice(split).join(' ');
-      if (dex.species.get(left).exists && dex.species.get(right).exists) {
-        resolvedTargets = [left, right];
-        break;
+    const eviIdx = words.findIndex(w => w.toLowerCase() === 'eviolite');
+    const stripped = eviIdx !== -1 ? [...words.slice(0, eviIdx), ...words.slice(eviIdx + 1)] : words;
+
+    if (!dex.species.get(stripped.join(' ')).exists) {
+      for (let split = 1; split < stripped.length; split++) {
+        const left = stripped.slice(0, split).join(' ');
+        const right = stripped.slice(split).join(' ');
+        if (dex.species.get(left).exists && dex.species.get(right).exists) {
+          resolvedTargets = [left, right];
+          if (eviIdx !== -1) {
+            eviA = eviIdx <= split;
+            eviB = eviIdx > split;
+          }
+          break;
+        }
       }
     }
   }
@@ -39,26 +68,36 @@ export function cmdCompare(args: string[]): void {
   }
 
   const [a, b] = [dex.species.get(resolvedTargets[0]), dex.species.get(resolvedTargets[1])];
-
   if (!a.exists) { console.error(`'${resolvedTargets[0]}' not found.`); return; }
   if (!b.exists) { console.error(`'${resolvedTargets[1]}' not found.`); return; }
 
-  const genLabel = dex !== Dex ? dim(` [${dex.currentMod}]`) : '';
-  const nameA = a.name;
-  const nameB = b.name;
+  if (eviA && !a.evos?.length) {
+    console.log(dim(`(${a.name} is fully evolved, eviolite has no effect)`));
+    eviA = false;
+  }
+  if (eviB && !b.evos?.length) {
+    console.log(dim(`(${b.name} is fully evolved, eviolite has no effect)`));
+    eviB = false;
+  }
 
-  const colW = Math.max(nameA.length, nameB.length, 6) + 2;
+  const statsA = eviA ? applyEviolite(a.baseStats) : a.baseStats;
+  const statsB = eviB ? applyEviolite(b.baseStats) : b.baseStats;
+
+  const genLabel = dex !== Dex ? dim(` [${dex.currentMod}]`) : '';
+  const displayA = a.name + (eviA ? '+Evi' : '');
+  const displayB = b.name + (eviB ? '+Evi' : '');
+  const colW = Math.max(displayA.length, displayB.length, 6) + 2;
   const labelW = 4;
 
-  console.log(`\n${bold(nameA)} vs ${bold(nameB)}${genLabel}\n`);
-  console.log(' '.repeat(labelW + 2) + nameA.padStart(colW) + nameB.padStart(colW));
+  console.log(`\n${bold(a.name)}${eviA ? dim(' +Eviolite') : ''} vs ${bold(b.name)}${eviB ? dim(' +Eviolite') : ''}${genLabel}\n`);
+  console.log(' '.repeat(labelW + 2) + displayA.padStart(colW) + displayB.padStart(colW));
 
-  const bstA = STATS.reduce((s, k) => s + a.baseStats[k], 0);
-  const bstB = STATS.reduce((s, k) => s + b.baseStats[k], 0);
+  const bstA = STATS.reduce((s, k) => s + statsA[k], 0);
+  const bstB = STATS.reduce((s, k) => s + statsB[k], 0);
 
   for (const stat of STATS) {
-    const vA = a.baseStats[stat];
-    const vB = b.baseStats[stat];
+    const vA = statsA[stat];
+    const vB = statsB[stat];
     const label = STAT_LABELS[stat].padEnd(labelW);
     const fmtA = vA > vB ? green(String(vA).padStart(colW)) : vA < vB ? red(String(vA).padStart(colW)) : String(vA).padStart(colW);
     const fmtB = vB > vA ? green(String(vB).padStart(colW)) : vB < vA ? red(String(vB).padStart(colW)) : String(vB).padStart(colW);

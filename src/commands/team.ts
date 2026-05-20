@@ -1,22 +1,26 @@
 import { Dex } from '@pkmn/sim';
 import { bold, dim, red, yellow, green, cyan } from '../ansi';
 import { splitGen } from '../gen';
+import { expandTeamRefs } from '../config';
 
 export function cmdTeam(args: string[]): void {
   if (!args.length) {
-    console.log('Usage: team [gen] <pokemon1>, <pokemon2>[, ...]');
+    console.log('Usage: teamcheck [gen] <pokemon1>, <pokemon2>[, ...]  (or @teamname)');
     return;
   }
 
   const { dex, targets } = splitGen(args);
 
   if (!targets.length) {
-    console.log('Usage: team [gen] <pokemon1>, <pokemon2>[, ...]');
+    console.log('Usage: teamcheck [gen] <pokemon1>, <pokemon2>[, ...]  (or @teamname)');
     return;
   }
 
+  const expanded = expandTeamRefs(targets);
+  if (!expanded.ok) { console.error(`No team named '${expanded.missing}'. Save one with: pcbox save <name> <p1>, <p2>, ...`); return; }
+
   const members: Array<{ name: string; types: string[] }> = [];
-  for (const t of targets) {
+  for (const t of expanded.targets) {
     const species = dex.species.get(t);
     if (!species.exists) {
       console.error(`'${t}' not found.`);

@@ -1,6 +1,7 @@
 import { Dex } from '@pkmn/sim';
 import { bold, dim, red, green, cyan } from '../ansi';
 import { splitGen } from '../gen';
+import { expandTeamRefs } from '../config';
 
 const ABILITY_IMMUNITIES: Record<string, string[]> = {
   Ground:   ['Levitate', 'Earth Eater'],
@@ -46,7 +47,9 @@ export function cmdCounter(args: string[]): void {
   }
 
   const genLabel = dex !== Dex ? dim(` [${dex.currentMod}]`) : '';
-  const teamTargets = targets.slice(1);
+  const expanded = expandTeamRefs(targets.slice(1));
+  if (!expanded.ok) { console.error(`No team named '${expanded.missing}'. Save one with: pcbox save <name> <p1>, <p2>, ...`); return; }
+  const teamTargets = expanded.targets;
   const abilityImm = ABILITY_IMMUNITIES[atkType] ?? [];
   const itemImm = ITEM_IMMUNITIES[atkType] ?? [];
 

@@ -23,6 +23,7 @@ import { cmdSets } from './commands/sets';
 import { cmdMoves } from './commands/moves';
 import { cmdChain } from './commands/chain';
 import { cmdConfig } from './commands/config';
+import { cmdPcbox } from './commands/pcbox';
 import { isFirstRun, setUpdateCheck, getUpdateCheckSetting, checkForUpdates } from './config';
 
 const COMMANDS = [
@@ -41,13 +42,14 @@ const COMMANDS = [
   'nature',
   'evspread',
   'ability', 'abilities',
-  'team',
+  'teamcheck', 'team',
   'compare',
   'counter',
   'sets', 'smogon',
   'moves',
   'evo', 'evochain', 'chain',
   'randomquote', 'rq',
+  'pcbox', 'box',
   'config',
   'help', 'exit', 'quit',
 ];
@@ -136,8 +138,13 @@ function dispatch(cmd: string, args: string[]): void {
   case 'abilities':
     cmdAbilities(args);
     break;
+  case 'teamcheck':
   case 'team':
     cmdTeam(args);
+    break;
+  case 'pcbox':
+  case 'box':
+    cmdPcbox(args);
     break;
   case 'compare':
     cmdCompare(args);

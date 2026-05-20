@@ -73,9 +73,11 @@ const COMMAND_DETAILS: Record<string, string> = {
   counter: `${blue('counter')} [gen] <move|type> [, pokemon1, pokemon2, ...]
   Show which types resist or are immune to a move/type. If pokemon are given,
   filters to just your team and groups them by immune, resists, neutral, weak.
+  You can also pass a saved team by name (see ${blue('pcbox')}).
   e.g. counter earthquake
        counter fire
-       counter earthquake, garchomp, rotom-wash, blissey, salamence`,
+       counter earthquake, garchomp, rotom-wash, blissey, salamence
+       counter earthquake, main`,
 
   compare: `${blue('compare')} [gen] <pokemon1>, <pokemon2>
   Side-by-side base stat comparison.
@@ -83,10 +85,26 @@ const COMMAND_DETAILS: Record<string, string> = {
        compare gen4, garchomp, salamence
        compare iron moth volcarona`,
 
-  team: `${blue('team')} [gen] <pokemon1>, <pokemon2>[, ...]
+  teamcheck: `${blue('teamcheck')} [gen] <pokemon1>, <pokemon2>[, ...]  ${dim('Alias: team')}
   Team weakness analysis: shared weaknesses and types no member resists.
-  e.g. team charizard, blastoise, venusaur
-       team bw, garchomp, ferrothorn, politoed`,
+  You can also pass a saved team by name (see ${blue('pcbox')}).
+  e.g. teamcheck charizard, blastoise, venusaur
+       teamcheck bw, garchomp, ferrothorn, politoed
+       teamcheck main`,
+
+  pcbox: `${blue('pcbox')} [subcommand] [args]  ${dim('Alias: box')}
+  Save teams of pokemon and reuse them in other commands by name.
+  Subcommands:
+    save <name> <p1>, <p2>, ...   save a team
+    list                          list all saved teams (default if no subcommand)
+    show <name>                   show a saved team
+    delete <name>                 delete a saved team
+  e.g. pcbox save main garchomp, ferrothorn, politoed, latios, jirachi, breloom
+       pcbox list
+       pcbox show main
+       pcbox delete main
+       counter earthquake, main
+       teamcheck main`,
 
   ability: `${blue('ability')} [gen] <ability>  ${dim('Alias: abilities')}
   List all Pokemon with a given ability, grouped by regular vs hidden.
@@ -174,6 +192,8 @@ const ALIASES: Record<string, string> = {
   rq: 'randomquote',
   evochain: 'evo', chain: 'evo',
   abilities: 'ability',
+  team: 'teamcheck',
+  box: 'pcbox',
 };
 
 function line(cmd: string, desc: string, aliases?: string): string {
@@ -212,7 +232,7 @@ ${line('itemsearch', 'Search items by description.', 'is')}
 ${section('battle')}
 ${line('coverage', 'Best type coverage for up to 4 moves or types.')}
 ${line('counter', 'Which types resist a move. Can filter by your team.')}
-${line('team', 'Team weakness analysis.')}
+${line('teamcheck', 'Team weakness analysis.', 'team')}
 ${line('statcalc', 'Calculate the final value of a stat.')}
 ${line('compare', 'Side-by-side base stat comparison of two pokemon.')}
 ${section('pokedex')}
@@ -228,6 +248,7 @@ ${line('randompokemon', 'Random pokemon, optionally filtered.', 'rp, random')}
 ${line('randommove', 'Random move, optionally filtered.', 'rm')}
 ${line('randomquote', 'Random pokemon quote.', 'rq')}
 ${section('settings')}
+${line('pcbox', 'Save teams to reuse with @teamname.', 'box')}
 ${line('config', 'Manage settings (e.g. update checks).')}
 
   ${dim('Type')} help <command> ${dim('for examples.  e.g.')} help weakness

@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-VERSION=$(curl -fsSL https://api.github.com/repos/luvcie/pokescope/releases/latest | grep '"tag_name"' | sed 's/.*"tag_name": *"v\([^"]*\)".*/\1/')
+VERSION=$(curl -fsSL https://api.github.com/repos/luvcie/starmie-cli/releases/latest | grep '"tag_name"' | sed 's/.*"tag_name": *"v\([^"]*\)".*/\1/')
 
 OS=$(uname -s | tr '[:upper:]' '[:lower:]')
 ARCH=$(uname -m)
@@ -18,21 +18,21 @@ case "$ARCH" in
   *)               echo "Unsupported architecture: $ARCH" && exit 1 ;;
 esac
 
-BINARY="pokescope-${OS}-${ARCH}"
-URL="https://github.com/luvcie/pokescope/releases/download/v${VERSION}/${BINARY}"
+BINARY="starmie-cli-${OS}-${ARCH}"
+URL="https://github.com/luvcie/starmie-cli/releases/download/v${VERSION}/${BINARY}"
 INSTALL_DIR="$HOME/.local/bin"
 
 mkdir -p "$INSTALL_DIR"
 
-echo "Downloading pokescope ${VERSION}..."
-curl -fsSL "$URL" -o "$INSTALL_DIR/pokescope"
-chmod +x "$INSTALL_DIR/pokescope"
+echo "Downloading starmie-cli ${VERSION}..."
+curl -fsSL "$URL" -o "$INSTALL_DIR/starmie-cli"
+chmod +x "$INSTALL_DIR/starmie-cli"
 
-echo "Installed to $INSTALL_DIR/pokescope"
+echo "Installed to $INSTALL_DIR/starmie-cli"
 
 case ":$PATH:" in
   *":$INSTALL_DIR:"*)
-    echo "Done! Run: pokescope"
+    echo "Done! Run: starmie-cli"
     ;;
   *)
     SHELL_RC=""
@@ -45,7 +45,7 @@ case ":$PATH:" in
       echo "Added $INSTALL_DIR to PATH in $SHELL_RC."
       echo "Open a new terminal or run: source $SHELL_RC"
     else
-      echo "$INSTALL_DIR is not in your PATH. Add it manually to use pokescope."
+      echo "$INSTALL_DIR is not in your PATH. Add it manually to use starmie-cli."
     fi
     ;;
 esac

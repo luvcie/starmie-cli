@@ -49,25 +49,25 @@
             installPhase = ''
               runHook preInstall
 
-              mkdir -p $out/share/pokescope $out/bin
+              mkdir -p $out/share/starmie-cli $out/bin
 
-              cp pokescope.ts tsconfig.json $out/share/pokescope/
-              cp -r src $out/share/pokescope/
-              cp -r data $out/share/pokescope/
-              cp -r node_modules $out/share/pokescope/
+              cp starmie-cli.ts tsconfig.json $out/share/starmie-cli/
+              cp -r src $out/share/starmie-cli/
+              cp -r data $out/share/starmie-cli/
+              cp -r node_modules $out/share/starmie-cli/
 
-              makeWrapper ${pkgs.bun}/bin/bun $out/bin/pokescope \
-                --add-flags "run $out/share/pokescope/pokescope.ts"
+              makeWrapper ${pkgs.bun}/bin/bun $out/bin/starmie-cli \
+                --add-flags "run $out/share/starmie-cli/starmie-cli.ts"
 
               runHook postInstall
             '';
 
             meta = with pkgs.lib; {
               description = "Pokémon Showdown info commands in your terminal";
-              homepage = "https://github.com/luvcie/pokescope";
+              homepage = "https://github.com/luvcie/starmie-cli";
               license = licenses.mit;
               maintainers = [ ];
-              mainProgram = "pokescope";
+              mainProgram = "starmie-cli";
               platforms = platforms.linux ++ platforms.darwin;
             };
           };

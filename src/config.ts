@@ -7,12 +7,36 @@ type Config = {
   teams?: Record<string, string[]>;
 };
 
-function getConfigPath(): string {
+function computeConfigPath(appName: string): string {
   if (process.platform === 'win32') {
     const appData = process.env.APPDATA ?? path.join(os.homedir(), 'AppData', 'Roaming');
-    return path.join(appData, 'pokescope', 'config.json');
+    return path.join(appData, appName, 'config.json');
   }
-  return path.join(os.homedir(), '.config', 'pokescope', 'config.json');
+  return path.join(os.homedir(), '.config', appName, 'config.json');
+}
+
+let configPathCache: string | null = null;
+
+function getConfigPath(): string {
+  if (configPathCache) return configPathCache;
+
+  const newPath = computeConfigPath('starmie-cli');
+  const oldPath = computeConfigPath('pokescope'); // pre-rename location, kept for migration
+  const newDir = path.dirname(newPath);
+  const oldDir = path.dirname(oldPath);
+
+  if (fs.existsSync(oldDir) && !fs.existsSync(newDir)) {
+    try {
+      fs.renameSync(oldDir, newDir);
+    } catch (err) {
+      console.warn(`Warning: could not migrate config from ${oldDir} to ${newDir}: ${(err as Error).message}. Reading from old location.`);
+      configPathCache = oldPath;
+      return oldPath;
+    }
+  }
+
+  configPathCache = newPath;
+  return newPath;
 }
 
 function readConfig(): Config | null {
@@ -45,8 +69,8 @@ export function setUpdateCheck(enabled: boolean): void {
 
 export async function checkForUpdates(currentVersion: string): Promise<string | null> {
   try {
-    const res = await fetch('https://api.github.com/repos/luvcie/pokescope/releases/latest', {
-      headers: { 'User-Agent': 'pokescope' },
+    const res = await fetch('https://api.github.com/repos/luvcie/starmie-cli/releases/latest', {
+      headers: { 'User-Agent': 'starmie-cli' },
       signal: AbortSignal.timeout(4000),
     });
     if (!res.ok) return null;

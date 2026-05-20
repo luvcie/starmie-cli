@@ -168,7 +168,7 @@ const COMMAND_DETAILS: Record<string, string> = {
   Print a random Pokemon quote.`,
 
   config: `${blue('config')} <setting> <value>
-  Manage pokescope settings.
+  Manage starmie-cli settings.
   Settings:
     update-check on|off   check for a new version on startup
   e.g. config update-check on

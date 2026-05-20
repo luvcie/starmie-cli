@@ -32,11 +32,11 @@ jobs:
         if: steps.semantic.outputs.new_release_published == 'true'
         run: |
           mkdir -p dist
-          bun build --compile --target=bun-linux-x64     pokescope.ts --outfile dist/pokescope-linux-x64
-          bun build --compile --target=bun-linux-arm64   pokescope.ts --outfile dist/pokescope-linux-arm64
-          bun build --compile --target=bun-darwin-x64    pokescope.ts --outfile dist/pokescope-macos-x64
-          bun build --compile --target=bun-darwin-arm64  pokescope.ts --outfile dist/pokescope-macos-arm64
-          bun build --compile --target=bun-windows-x64   pokescope.ts --outfile dist/pokescope-windows-x64.exe
+          bun build --compile --target=bun-linux-x64     starmie-cli.ts --outfile dist/starmie-cli-linux-x64
+          bun build --compile --target=bun-linux-arm64   starmie-cli.ts --outfile dist/starmie-cli-linux-arm64
+          bun build --compile --target=bun-darwin-x64    starmie-cli.ts --outfile dist/starmie-cli-macos-x64
+          bun build --compile --target=bun-darwin-arm64  starmie-cli.ts --outfile dist/starmie-cli-macos-arm64
+          bun build --compile --target=bun-windows-x64   starmie-cli.ts --outfile dist/starmie-cli-windows-x64.exe
           gh release upload v${{ steps.semantic.outputs.new_release_version }} dist/* --clobber
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

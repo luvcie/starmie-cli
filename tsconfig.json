@@ -11,5 +11,5 @@
     "types": ["node"],
     "resolveJsonModule": true
   },
-  "include": ["pokescope.ts", "src/**/*.ts"]
+  "include": ["starmie-cli.ts", "src/**/*.ts"]
 }

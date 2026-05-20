@@ -1,5 +1,5 @@
 {
-  "name": "pokescope",
+  "name": "starmie-cli",
   "version": "1.4.0",
   "description": "Pokémon Showdown info commands in your terminal",
   "scripts": {
@@ -7,7 +7,7 @@
     "update-data": "bun run scripts/update-data.ts"
   },
   "bin": {
-    "pokescope": "./pokescope.ts"
+    "starmie-cli": "./starmie-cli.ts"
   },
   "dependencies": {
     "@pkmn/sim": "^0.10.8"

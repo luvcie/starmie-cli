@@ -199,12 +199,12 @@ if (argv.length > 0) {
   const [cmd, ...rest] = argv;
   if (cmd === '--version' || cmd === '-version') {
     const { version } = await import('../package.json');
-    console.log(`pokescope ${version}`);
+    console.log(`starmie-cli ${version}`);
     process.exit(0);
   }
   dispatch(cmd, rest);
 } else {
-  console.log(`${bold('pokescope')} ${randKaomoji()} type ${blue('help')} to see available commands, ${blue('exit')} to quit.\n`);
+  console.log(`${bold('starmie-cli')} ${randKaomoji()} type ${blue('help')} to see available commands, ${blue('exit')} to quit.\n`);
 
   if (isFirstRun()) {
     await new Promise<void>(resolve => {
@@ -228,7 +228,7 @@ if (argv.length > 0) {
     const timeout = new Promise<null>(r => setTimeout(() => r(null), 3000));
     const latest = await Promise.race([checkForUpdates(version), timeout]);
     if (latest) {
-      console.log(dim(`  update available: v${version} → v${latest}  (github.com/luvcie/pokescope/releases)\n`));
+      console.log(dim(`  update available: v${version} → v${latest}  (github.com/luvcie/starmie-cli/releases)\n`));
     }
   }
 

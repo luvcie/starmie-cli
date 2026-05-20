@@ -1,4 +1,4 @@
-# Pokescope
+# starmie-cli
 
 > A terminal tool for looking up Pokemon data: type effectiveness, move compatibility, dex searches, stat calc, and more. Mostly Pokemon Showdown's lookup commands ported to the terminal, with a few personal additions.
 
@@ -24,17 +24,17 @@ Also thanks to my fren William for helping me choose the name. :)
 
 **Linux and macOS:**
 ```sh
-curl -fsSL https://raw.githubusercontent.com/luvcie/pokescope/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/luvcie/starmie-cli/main/install.sh | sh
 ```
 
-To uninstall: `rm ~/.local/bin/pokescope`
+To uninstall: `rm ~/.local/bin/starmie-cli`
 
 **Windows (PowerShell):**
 ```powershell
-irm https://raw.githubusercontent.com/luvcie/pokescope/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/luvcie/starmie-cli/main/install.ps1 | iex
 ```
 
-To uninstall: `Remove-Item "$env:LOCALAPPDATA\pokescope" -Recurse -Force`
+To uninstall: `Remove-Item "$env:LOCALAPPDATA\starmie-cli" -Recurse -Force`
 
 <small>To update to latest version, re-run the install command.</small>
 
@@ -42,37 +42,37 @@ To uninstall: `Remove-Item "$env:LOCALAPPDATA\pokescope" -Recurse -Force`
 
 Run temporarily, without installing:
 ```
-nix run github:luvcie/pokescope
+nix run github:luvcie/starmie-cli
 ```
 
 To install permanently:
 ```
-nix profile add github:luvcie/pokescope
+nix profile add github:luvcie/starmie-cli
 ```
 
 To update:
 ```
-nix profile upgrade pokescope
+nix profile upgrade starmie-cli
 ```
 
 Or add to your flake:
 ```nix
-inputs.pokescope.url = "github:luvcie/pokescope";
+inputs.starmie-cli.url = "github:luvcie/starmie-cli";
 
 # then in environment.systemPackages / home.packages:
-inputs.pokescope.packages.${system}.default
+inputs.starmie-cli.packages.${system}.default
 ```
 
 ### mise
 
 Works on Linux, macOS, and Windows. Install [mise](https://mise.jdx.dev) then:
 ```
-mise use -g github:luvcie/pokescope
+mise use -g github:luvcie/starmie-cli
 ```
 
 To update:
 ```
-mise upgrade github:luvcie/pokescope
+mise upgrade github:luvcie/starmie-cli
 ```
 
 On Windows, mise's shims aren't on PATH by default. To add them permanently (requires restarting PowerShell after):
@@ -90,8 +90,8 @@ If you see a warning about `chpwd` requiring PowerShell 7, silence it with:
 Requires [Bun](https://bun.sh).
 
 ```
-git clone https://github.com/luvcie/pokescope
-cd pokescope
+git clone https://github.com/luvcie/starmie-cli
+cd starmie-cli
 bun install
 bun link
 ```
@@ -100,13 +100,13 @@ bun link
 
 Interactive REPL:
 ```
-pokescope
+starmie-cli
 ```
 
 Or directly:
 ```
-pokescope weakness charizard
-pokescope dexsearch fire, ou
+starmie-cli weakness charizard
+starmie-cli dexsearch fire, ou
 ```
 
 ## Commands

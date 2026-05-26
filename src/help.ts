@@ -26,11 +26,13 @@ const COMMAND_DETAILS: Record<string, string> = {
   e.g. coverage surf,thunderbolt,icebeam,earthquake
        coverage gen5, freeze-dry, flying press`,
 
-  learn: `${blue('learn')} [gen] <pokemon>, <move>[, move2, ...]
+  learn: `${blue('learn')} [gen] <pokemon|team>, <move>[, move2, ...]
   Check if a pokemon can learn a move (or combination), and how.
+  Pass a team name (saved with ${blue('pcbox')}) or multiple pokemon to check the whole team.
   e.g. learn pikachu, thunderbolt
        learn gen6, togekiss, nasty plot
-       learn gen8, umbreon, wish`,
+       learn main, trick room
+       learn pikachu, bronzong, magearna, trick room`,
 
   dexsearch: `${blue('dexsearch')} [gen] <filter>[, filter, ...]  ${dim('Aliases: ds, nds')}
   Search for Pokemon matching criteria.

@@ -14,7 +14,9 @@ It uses [`@pkmn/sim`](https://www.npmjs.com/package/@pkmn/sim) from [Modular Pok
 
 `@pkmn/sim` is also published much more often than the `pokemon-showdown` npm package (every couple of weeks vs years between releases), so competitive users get tier moves, format changes, and item description updates pretty quickly.
 
-Also thanks to my fren William for helping me choose the name. :)
+The interactive REPL is built with [Ink](https://github.com/vadimdemedes/ink). It does fish-style ghost suggestions from your command history, tab cycling, and persistent history saved to `~/.config/starmie-cli/history`.
+
+Why the name starmie-cli? Because this was developed during summer, I dreamed the name, starmie kind of looks like a compass rose, and also it sounds like my real life name. :)
 
 ## Install
 

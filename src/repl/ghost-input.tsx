@@ -12,7 +12,7 @@ export function GhostInput({ history, prompt, onSubmit }: Props): React.ReactEle
   const [input, setInput] = useState('');
   const [cursor, setCursor] = useState(0);
   const [historyIndex, setHistoryIndex] = useState<number | null>(null);
-  const [completionList, setCompletionList] = useState<string[] | null>(null);
+  const [tabCycle, setTabCycle] = useState<{ matches: string[]; index: number; replaceFrom: number; prefix: string } | null>(null);
   const { exit } = useApp();
 
   const ghost = computeGhost(input, history);
@@ -31,22 +31,32 @@ export function GhostInput({ history, prompt, onSubmit }: Props): React.ReactEle
       setInput('');
       setCursor(0);
       setHistoryIndex(null);
-      setCompletionList(null);
+      setTabCycle(null);
       return;
     }
     if (key.tab) {
-      const { matches, replaceFrom } = complete(input, cursor);
-      if (matches.length === 1) {
-        const newInput = input.slice(0, replaceFrom) + matches[0] + input.slice(cursor);
+      if (tabCycle) {
+        const newIndex = (tabCycle.index + 1) % tabCycle.matches.length;
+        const match = tabCycle.matches[newIndex];
+        const newInput = tabCycle.prefix + match;
         setInput(newInput);
-        setCursor(replaceFrom + matches[0].length);
-        setCompletionList(null);
-      } else if (matches.length > 1) {
-        setCompletionList(matches);
+        setCursor(newInput.length);
+        setTabCycle({ ...tabCycle, index: newIndex });
+      } else {
+        const { matches, replaceFrom } = complete(input, cursor);
+        if (matches.length >= 1) {
+          const prefix = input.slice(0, replaceFrom);
+          const newInput = prefix + matches[0] + input.slice(cursor);
+          setInput(newInput);
+          setCursor(replaceFrom + matches[0].length);
+          if (matches.length > 1) {
+            setTabCycle({ matches, index: 0, replaceFrom, prefix });
+          }
+        }
       }
       return;
     }
-    setCompletionList(null);
+    setTabCycle(null);
     if (key.upArrow) {
       if (!history.length) return;
       const newIdx = historyIndex === null ? history.length - 1 : Math.max(0, historyIndex - 1);
@@ -120,13 +130,17 @@ export function GhostInput({ history, prompt, onSubmit }: Props): React.ReactEle
 
   return (
     <Box flexDirection="column">
-      {completionList ? (
+      {tabCycle ? (
         <Box>
-          <Text dimColor>{completionList.join('  ')}</Text>
+          <Text dimColor>
+            {tabCycle.matches.map((m, i) =>
+              i === tabCycle.index ? `[${m}]` : m
+            ).join('  ')}
+          </Text>
         </Box>
       ) : null}
-      <Box>
-        <Text>{prompt}{beforeCursor}</Text>
+      <Text>
+        {prompt}{beforeCursor}
         {atEndWithGhost ? (
           <>
             <Text inverse>{ghost![0]}</Text>
@@ -135,10 +149,10 @@ export function GhostInput({ history, prompt, onSubmit }: Props): React.ReactEle
         ) : (
           <>
             <Text inverse>{atCursor}</Text>
-            {afterCursor ? <Text>{afterCursor}</Text> : null}
+            {afterCursor}
           </>
         )}
-      </Box>
+      </Text>
     </Box>
   );
 }

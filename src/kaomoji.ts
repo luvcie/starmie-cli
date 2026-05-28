@@ -8,6 +8,7 @@ export const KAOMOJI = [
   '@(@~@)@',
   "++(' _ ')++",
   '(\\/) ( ;,,;)(\\/)',
+  '( ^ ᗜ ^)🪄⋆｡ °✩₊˚.⋆☾⋆⁺₊✧',
 ];
 
 export const randKaomoji = (): string => KAOMOJI[Math.floor(Math.random() * KAOMOJI.length)];

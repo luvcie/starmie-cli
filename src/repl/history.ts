@@ -15,7 +15,7 @@ function getHistoryPath(): string {
 export function loadHistory(): string[] {
   try {
     const raw = fs.readFileSync(getHistoryPath(), 'utf8');
-    const lines = raw.split('\n').filter(Boolean);
+    const lines = raw.split('\n').map(l => l.replace(/\r$/, '')).filter(Boolean);
     if (lines.length > MAX_HISTORY) {
       const trimmed = lines.slice(-MAX_HISTORY);
       fs.writeFileSync(getHistoryPath(), trimmed.join('\n') + '\n');

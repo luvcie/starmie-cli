@@ -264,5 +264,7 @@ ${bold('Generation prefixes')} ${dim('(supported by most commands)')}
   gen3  ${dim('adv, rs')}       gen7  ${dim('usum, sm')}
   gen4  ${dim('dpp, dp')}       gen8  ${dim('ss')}
                       gen9  ${dim('sv')}
+
+  ${dim('Prefixes and keyword flags also accept a leading - or --, e.g. --gen6, -bw, --inverse.')}
 `);}
 

@@ -82,6 +82,7 @@ import { randKaomoji } from './kaomoji';
 
 function dispatch(cmd: string, args: string[]): void {
   if (cmd.startsWith('/')) cmd = cmd.slice(1);
+  args = args.map(a => a.replace(/^-{1,2}(?=[a-zA-Z])/, ''));
   switch (cmd.toLowerCase()) {
   case 'weakness':
   case 'weak':

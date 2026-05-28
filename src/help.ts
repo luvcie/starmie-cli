@@ -81,11 +81,14 @@ const COMMAND_DETAILS: Record<string, string> = {
        counter earthquake, garchomp, rotom-wash, blissey, salamence
        counter earthquake, main`,
 
-  compare: `${blue('compare')} [gen] <pokemon1>, <pokemon2>
-  Side-by-side base stat comparison.
+  compare: `${blue('compare')} [gen] [randoms] [base] <pokemon1> [lvl<N>], <pokemon2> [lvl<N>]
+  Side-by-side stat comparison. Defaults to base stats. Add ${dim('lvl<N>')} for
+  per-pokemon levels or ${dim('randoms')} for the 85 EVs/all-stats spread used in
+  random battles. Those modes hide the base stats; add ${dim('base')} to also show them.
   e.g. compare garchomp, dragonite
        compare gen4, garchomp, salamence
-       compare iron moth volcarona`,
+       compare bw randoms shiftry lvl81, pinsir lvl74
+       compare bw randoms base shiftry lvl81, pinsir lvl74`,
 
   teamcheck: `${blue('teamcheck')} [gen] <pokemon1>, <pokemon2>[, ...]  ${dim('Alias: team')}
   Team weakness analysis: shared weaknesses and types no member resists.

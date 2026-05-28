@@ -7,10 +7,16 @@ const STAT_LABELS: Record<string, string> = {
   hp: 'HP', atk: 'Atk', def: 'Def', spa: 'SpA', spd: 'SpD', spe: 'Spe',
 };
 
-type Mods = { evi: boolean; lb: boolean };
+type Mods = { evi: boolean; lb: boolean; level: number };
 
 function extractMods(s: string): { name: string; mods: Mods } {
-  const normalized = s.trim().replace(/\blight[\s-]+ball\b/gi, 'lightball');
+  let normalized = s.trim().replace(/\blight[\s-]+ball\b/gi, 'lightball');
+  let level = 100;
+  const lvlMatches = [...normalized.matchAll(/(?:^|\s)(?:lvl|lv|level|l)\s*(\d+)(?=\s|$)/gi)];
+  if (lvlMatches.length) {
+    level = Math.max(1, Math.min(100, parseInt(lvlMatches[0][1], 10)));
+    normalized = normalized.replace(/(?:^|\s)(?:lvl|lv|level|l)\s*\d+(?=\s|$)/gi, ' ').replace(/\s+/g, ' ').trim();
+  }
   const words = normalized.split(/\s+/);
   let evi = false, lb = false;
   const remaining = words.filter(w => {
@@ -19,7 +25,7 @@ function extractMods(s: string): { name: string; mods: Mods } {
     if (lc === 'lightball') { lb = true; return false; }
     return true;
   });
-  return { name: remaining.join(' ').trim(), mods: { evi, lb } };
+  return { name: remaining.join(' ').trim(), mods: { evi, lb, level } };
 }
 
 function applyBaseMods(stats: Record<string, number>, mods: Mods) {
@@ -29,19 +35,24 @@ function applyBaseMods(stats: Record<string, number>, mods: Mods) {
   return s;
 }
 
-// level 100, 31 IVs, 0 EVs, neutral nature
-function calcLv100(base: Record<string, number>) {
+// 31 IVs, neutral nature, given level and EV (per stat)
+function calcStats(base: Record<string, number>, level: number, evs: number) {
+  const evContrib = Math.floor(evs / 4);
+  const calc = (b: number) => Math.floor((2 * b + 31 + evContrib) * level / 100) + 5;
+  const hp = base.hp === 1
+    ? 1
+    : Math.floor((2 * base.hp + 31 + evContrib) * level / 100) + level + 10;
   return {
-    hp:  2 * base.hp  + 31 + 110,
-    atk: 2 * base.atk + 31 + 5,
-    def: 2 * base.def + 31 + 5,
-    spa: 2 * base.spa + 31 + 5,
-    spd: 2 * base.spd + 31 + 5,
-    spe: 2 * base.spe + 31 + 5,
+    hp,
+    atk: calc(base.atk),
+    def: calc(base.def),
+    spa: calc(base.spa),
+    spd: calc(base.spd),
+    spe: calc(base.spe),
   };
 }
 
-function applyLv100Mods(stats: Record<string, number>, mods: Mods) {
+function applyLevelMods(stats: Record<string, number>, mods: Mods) {
   const s = { ...stats };
   if (mods.evi) { s.def = Math.floor(s.def * 1.5); s.spd = Math.floor(s.spd * 1.5); }
   if (mods.lb)  { s.atk = s.atk * 2; s.spa = s.spa * 2; }
@@ -68,11 +79,24 @@ function printTable(labelW: number, colW: number, headerA: string, headerB: stri
 
 export function cmdCompare(args: string[]): void {
   if (!args.length) {
-    console.log('Usage: compare [gen] <pokemon1>, <pokemon2>');
+    console.log('Usage: compare [gen] [randoms] <pokemon1> [lvl<N>], <pokemon2> [lvl<N>]');
     return;
   }
 
-  const { dex, targets } = splitGen(args);
+  let randoms = false;
+  let showBase = false;
+  let joined = args.join(' ');
+  if (/(?:^|\s)-{0,2}randoms(?=\s|,|$)/i.test(joined)) {
+    randoms = true;
+    joined = joined.replace(/(?:^|\s)-{0,2}randoms(?=\s|,|$)/gi, ' ');
+  }
+  if (/(?:^|\s)-{0,2}base(?=\s|,|$)/i.test(joined)) {
+    showBase = true;
+    joined = joined.replace(/(?:^|\s)-{0,2}base(?=\s|,|$)/gi, ' ');
+  }
+  const filteredArgs = joined.replace(/\s+/g, ' ').trim().split(/\s+/).filter(Boolean);
+
+  const { dex, targets } = splitGen(filteredArgs);
 
   if (targets.length > 2) {
     console.error('compare only supports 2 pokemon at a time.');
@@ -80,8 +104,8 @@ export function cmdCompare(args: string[]): void {
   }
 
   let resolvedTargets = targets;
-  let modsA: Mods = { evi: false, lb: false };
-  let modsB: Mods = { evi: false, lb: false };
+  let modsA: Mods = { evi: false, lb: false, level: 100 };
+  let modsB: Mods = { evi: false, lb: false, level: 100 };
 
   if (targets.length === 2) {
     const pA = extractMods(targets[0]);
@@ -102,8 +126,11 @@ export function cmdCompare(args: string[]): void {
           resolvedTargets = [left, right];
           const eviIdx = words.findIndex(w => w.toLowerCase() === 'eviolite');
           const lbIdx  = words.findIndex(w => w.toLowerCase() === 'lightball' || w.toLowerCase() === 'light-ball');
+          const lvlMatchesAll = [...targets[0].matchAll(/(?:^|\s)(?:lvl|lv|level|l)\s*(\d+)(?=\s|$)/gi)];
           if (eviIdx !== -1) { modsA.evi = eviIdx <= split; modsB.evi = eviIdx > split; }
           if (lbIdx  !== -1) { modsA.lb  = lbIdx  <= split; modsB.lb  = lbIdx  > split; }
+          if (lvlMatchesAll.length >= 1) modsA.level = Math.max(1, Math.min(100, parseInt(lvlMatchesAll[0][1], 10)));
+          if (lvlMatchesAll.length >= 2) modsB.level = Math.max(1, Math.min(100, parseInt(lvlMatchesAll[1][1], 10)));
           break;
         }
       }
@@ -113,7 +140,7 @@ export function cmdCompare(args: string[]): void {
   }
 
   if (resolvedTargets.length < 2) {
-    console.log('Usage: compare [gen] <pokemon1>, <pokemon2>');
+    console.log('Usage: compare [gen] [randoms] <pokemon1> [lvl<N>], <pokemon2> [lvl<N>]');
     return;
   }
 
@@ -126,30 +153,46 @@ export function cmdCompare(args: string[]): void {
   if (modsA.lb && a.baseSpecies !== 'Pikachu') { console.log(dim(`(light ball only works for Pikachu)`)); modsA.lb = false; }
   if (modsB.lb && b.baseSpecies !== 'Pikachu') { console.log(dim(`(light ball only works for Pikachu)`)); modsB.lb = false; }
 
-  const anyMod = modsA.evi || modsA.lb || modsB.evi || modsB.lb;
+  const anyItemMod = modsA.evi || modsA.lb || modsB.evi || modsB.lb;
+  const anyLevelMod = modsA.level !== 100 || modsB.level !== 100;
+  const showAdjusted = anyItemMod || anyLevelMod || randoms;
+  const showBaseSection = !showAdjusted || showBase;
   const baseA = applyBaseMods(a.baseStats, modsA);
   const baseB = applyBaseMods(b.baseStats, modsB);
 
   const genLabel = dex !== Dex ? dim(` [${dex.currentMod}]`) : '';
+  const randomsLabel = randoms ? dim(' [randoms]') : '';
+  const lvlA = modsA.level !== 100 ? ` lv${modsA.level}` : '';
+  const lvlB = modsB.level !== 100 ? ` lv${modsB.level}` : '';
   const modLabelA = modsA.evi ? '+Evi' : modsA.lb ? '+LB' : '';
   const modLabelB = modsB.evi ? '+Evi' : modsB.lb ? '+LB' : '';
-  const displayA = a.name + modLabelA;
-  const displayB = b.name + modLabelB;
+  const baseDisplayA = a.name + modLabelA;
+  const baseDisplayB = b.name + modLabelB;
+  const displayA = baseDisplayA + lvlA;
+  const displayB = baseDisplayB + lvlB;
   const labelW = 4;
   const colW = Math.max(displayA.length, displayB.length, 6) + 2;
 
   const modTitleA = modsA.evi ? dim(' +Eviolite') : modsA.lb ? dim(' +Light Ball') : '';
   const modTitleB = modsB.evi ? dim(' +Eviolite') : modsB.lb ? dim(' +Light Ball') : '';
-  console.log(`\n${bold(a.name)}${modTitleA} vs ${bold(b.name)}${modTitleB}${genLabel}\n`);
+  console.log(`\n${bold(a.name)}${modTitleA} vs ${bold(b.name)}${modTitleB}${genLabel}${randomsLabel}\n`);
 
-  if (anyMod) console.log(dim('  base stats'));
-  printTable(labelW, colW, displayA, displayB, baseA, baseB, true);
+  if (showBaseSection) {
+    if (showAdjusted) console.log(dim('  base stats'));
+    printTable(labelW, colW, baseDisplayA, baseDisplayB, baseA, baseB, true);
+  }
 
-  if (anyMod) {
-    const lv100A = applyLv100Mods(calcLv100(a.baseStats), modsA);
-    const lv100B = applyLv100Mods(calcLv100(b.baseStats), modsB);
-    console.log(dim('\n  lv.100 — 31 IVs, 0 EVs, neutral nature'));
-    printTable(labelW, colW, displayA, displayB, lv100A, lv100B, false);
+  if (showAdjusted) {
+    const evs = randoms ? 85 : 0;
+    const calcA = applyLevelMods(calcStats(a.baseStats, modsA.level, evs), modsA);
+    const calcB = applyLevelMods(calcStats(b.baseStats, modsB.level, evs), modsB);
+    const evLabel = randoms ? '85 EVs all stats' : '0 EVs';
+    const lvlLabel = modsA.level === modsB.level
+      ? `lv.${modsA.level}`
+      : `lv.${modsA.level} / lv.${modsB.level}`;
+    const prefix = showBaseSection ? '\n  ' : '  ';
+    console.log(dim(`${prefix}${lvlLabel} (31 IVs, ${evLabel}, neutral nature)`));
+    printTable(labelW, colW, displayA, displayB, calcA, calcB, false);
   }
 
   console.log();

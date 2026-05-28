@@ -40,3 +40,33 @@ jobs:
           gh release upload v${{ steps.semantic.outputs.new_release_version }} dist/* --clobber
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update prebuilt binary hashes in flake
+        if: steps.semantic.outputs.new_release_published == 'true'
+        run: |
+          VERSION=${{ steps.semantic.outputs.new_release_version }}
+          sri() { echo "sha256-$(sha256sum "$1" | cut -d' ' -f1 | xxd -r -p | base64)"; }
+          LX64=$(sri dist/starmie-cli-linux-x64)
+          LA64=$(sri dist/starmie-cli-linux-arm64)
+          MX64=$(sri dist/starmie-cli-macos-x64)
+          MA64=$(sri dist/starmie-cli-macos-arm64)
+          {
+            echo '# Generated and updated by the release workflow. Do not edit by hand.'
+            echo '{'
+            echo "  version = \"$VERSION\";"
+            echo '  hashes = {'
+            echo "    \"x86_64-linux\" = \"$LX64\";"
+            echo "    \"aarch64-linux\" = \"$LA64\";"
+            echo "    \"x86_64-darwin\" = \"$MX64\";"
+            echo "    \"aarch64-darwin\" = \"$MA64\";"
+            echo '  };'
+            echo '}'
+          } > nix/bin-sources.nix
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main
+          git add nix/bin-sources.nix
+          git commit -m "chore: update prebuilt binary hashes for v$VERSION"
+          git push
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

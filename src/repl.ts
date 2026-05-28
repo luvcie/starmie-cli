@@ -1,6 +1,9 @@
 import * as readline from 'readline';
-import { Dex } from '@pkmn/sim';
-import { bold, cyan, blue, dim, B, CYAN, R } from './ansi';
+import React from 'react';
+import { render } from 'ink';
+import { bold, cyan, blue, dim } from './ansi';
+import { GhostInput } from './repl/ghost-input';
+import { loadHistory, appendHistory } from './repl/history';
 import { showHelp } from './help';
 import { cmdWeakness } from './commands/weakness';
 import { cmdEffectiveness } from './commands/effectiveness';
@@ -26,57 +29,6 @@ import { cmdConfig } from './commands/config';
 import { cmdPcbox } from './commands/pcbox';
 import { isFirstRun, setUpdateCheck, getUpdateCheckSetting, checkForUpdates } from './config';
 
-const COMMANDS = [
-  'weakness', 'weak', 'weaknesses', 'resist',
-  'eff', 'effectiveness', 'type', 'matchup',
-  'data', 'dex', 'dt',
-  'coverage', 'cover',
-  'learn', 'learnset',
-  'dexsearch', 'ds', 'nds',
-  'movesearch', 'ms',
-  'itemsearch', 'is',
-  'statcalc',
-  'randompokemon', 'random', 'randpoke', 'rollpokemon', 'rp',
-  'randommove', 'randmove', 'rollmove', 'rm',
-  'evyield',
-  'nature',
-  'evspread',
-  'ability', 'abilities',
-  'teamcheck', 'team',
-  'compare',
-  'counter',
-  'sets', 'smogon',
-  'moves',
-  'evo', 'evochain', 'chain',
-  'randomquote', 'rq',
-  'pcbox', 'box',
-  'config',
-  'help', 'exit', 'quit',
-];
-
-let speciesCache: string[] | null = null;
-function getSpecies(): string[] {
-  if (!speciesCache) {
-    speciesCache = Dex.species.all()
-      .filter((s) => s.exists && s.num > 0 && s.isNonstandard !== 'Custom' && s.isNonstandard !== 'LGPE')
-      .map((s) => s.name.toLowerCase());
-  }
-  return speciesCache;
-}
-
-function completer(line: string): [string[], string] {
-  if (!line.includes(' ')) {
-    const slash = line.startsWith('/');
-    const word = slash ? line.slice(1) : line;
-    const hits = COMMANDS.filter((c) => c.startsWith(word)).map(c => slash ? '/' + c : c);
-    return [hits, line];
-  }
-  const sepIdx = Math.max(line.lastIndexOf(','), line.lastIndexOf('/'), line.indexOf(' '));
-  const word = line.slice(sepIdx + 1).replace(/^\s+/, '').toLowerCase();
-  if (!word) return [[], line];
-  const hits = getSpecies().filter((s) => s.startsWith(word));
-  return [hits, word];
-}
 
 import { randKaomoji } from './kaomoji';
 
@@ -233,29 +185,31 @@ if (argv.length > 0) {
     }
   }
 
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-    prompt: `${B}${CYAN}›${R} `,
-    completer,
-  });
+  const history = loadHistory();
 
-  rl.prompt();
+  let inkInstance: ReturnType<typeof render> | null = null;
 
-  rl.on('line', (line: string) => {
+  const handleSubmit = (line: string): void => {
     const trimmed = line.trim();
-    if (!trimmed) { rl.prompt(); return; }
+    if (!trimmed) return;
     if (trimmed === 'exit' || trimmed === 'quit') {
+      inkInstance?.unmount();
       console.log(`Goodbye! ${randKaomoji()}`);
       process.exit(0);
     }
+    console.log(`${cyan('› ')}${trimmed}`);
+    appendHistory(trimmed, history);
+    history.push(trimmed);
     const [cmd] = trimmed.split(/\s+/);
     const rawArgs = trimmed.slice(cmd.length).trim();
     dispatch(cmd, rawArgs ? rawArgs.split(/\s+/) : []);
-    rl.prompt();
-  });
+  };
 
-  rl.on('close', () => {
-    process.exit(0);
-  });
+  inkInstance = render(
+    React.createElement(GhostInput, {
+      history,
+      prompt: cyan('› '),
+      onSubmit: handleSubmit,
+    }),
+  );
 }

@@ -52,6 +52,13 @@ To install permanently:
 nix profile add github:luvcie/starmie-cli
 ```
 
+This installs a prebuilt binary. To build from source instead, append `#source`:
+```
+nix profile add github:luvcie/starmie-cli#source
+```
+
+Building from source is faster if you add yourself to [`trusted-users`](https://nixos.org/manual/nix/stable/command-ref/conf-file.html#conf-trusted-users), which lets it use the nix-community cache and silences the harmless "untrusted substituter" warning.
+
 To update:
 ```
 nix profile upgrade starmie-cli

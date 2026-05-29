@@ -20,6 +20,7 @@ export const COMMANDS = [
   'compare',
   'counter',
   'sets', 'smogon',
+  'randbats', 'randombattle', 'randombattles',
   'moves',
   'evo', 'evochain', 'chain',
   'randomquote', 'rq',

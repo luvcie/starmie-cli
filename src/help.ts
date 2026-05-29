@@ -169,6 +169,13 @@ const COMMAND_DETAILS: Record<string, string> = {
        sets gengar, ou
        sets gen4 garchomp`,
 
+  randbats: `${blue('randbats')} [gen] <pokemon>  ${dim('Alias: randombattle')}
+  Possible random battle sets for a Pokemon: level, moves, ability, item, and
+  tera type per role. Defaults to the latest gen.
+  e.g. randbats pachirisu
+       randbats dragapult
+       randbats gen8 dragapult`,
+
   randomquote: `${blue('randomquote')}  ${dim('Alias: rq')}
   Print a random Pokemon quote.`,
 
@@ -191,6 +198,7 @@ const ALIASES: Record<string, string> = {
   ms: 'movesearch',
   is: 'itemsearch',
   smogon: 'sets',
+  randombattle: 'randbats', randombattles: 'randbats',
   ev: 'evyield',
   rp: 'randompokemon', randpoke: 'randompokemon', rollpokemon: 'randompokemon', random: 'randompokemon',
   rm: 'randommove', randmove: 'randommove', rollmove: 'randommove',
@@ -244,6 +252,7 @@ ${section('pokedex')}
 ${line('evo', 'Evolution chain for a pokemon.', 'chain')}
 ${line('moves', 'Full learnset for a pokemon.')}
 ${line('sets', 'Competitive sets from Smogon.', 'smogon')}
+${line('randbats', 'Possible random battle sets for a pokemon.', 'randombattle')}
 ${line('evyield', 'EV yield when defeating a pokemon.', 'ev')}
 ${line('evspread', 'All pokemon that give EVs in a stat.')}
 ${line('ability', 'List all pokemon with a given ability.', 'abilities')}

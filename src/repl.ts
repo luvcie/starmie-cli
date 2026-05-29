@@ -23,6 +23,7 @@ import { cmdTeam } from './commands/team';
 import { cmdCompare } from './commands/compare';
 import { cmdCounter } from './commands/counter';
 import { cmdSets } from './commands/sets';
+import { cmdRandbats } from './commands/randbats';
 import { cmdMoves } from './commands/moves';
 import { cmdChain } from './commands/chain';
 import { cmdConfig } from './commands/config';
@@ -107,6 +108,9 @@ function dispatch(cmd: string, args: string[]): void {
     break;
   case 'sets': case 'smogon':
     cmdSets(args);
+    break;
+  case 'randbats': case 'randombattle': case 'randombattles':
+    cmdRandbats(args);
     break;
   case 'moves':
     cmdMoves(args);

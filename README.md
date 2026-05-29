@@ -141,6 +141,7 @@ starmie-cli dexsearch fire, ou
 | `evo` | evolution chain for a Pokemon, with evo methods (aliases: `evochain`, `chain`) |
 | `moves` | full learnset for a Pokemon, grouped by method (level-up, TM, egg, tutor...) |
 | `sets` | competitive sets for a Pokemon from Smogon, grouped by tier |
+| `randbats` | possible random battle sets for a Pokemon (level, moves, ability, item, tera type for each role) |
 | `randompokemon` | random Pokemon, optionally filtered by dexsearch criteria |
 | `randommove` | random move, optionally filtered by movesearch criteria |
 | `randomquote` | a random Pokemon quote (not from Showdown, just something I added) |

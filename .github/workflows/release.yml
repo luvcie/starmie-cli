@@ -45,6 +45,9 @@ jobs:
         if: steps.semantic.outputs.new_release_published == 'true'
         run: |
           VERSION=${{ steps.semantic.outputs.new_release_version }}
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main
           sri() { echo "sha256-$(sha256sum "$1" | cut -d' ' -f1 | xxd -r -p | base64)"; }
           LX64=$(sri dist/starmie-cli-linux-x64)
           LA64=$(sri dist/starmie-cli-linux-arm64)
@@ -62,9 +65,6 @@ jobs:
             echo '  };'
             echo '}'
           } > nix/bin-sources.nix
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git pull --rebase origin main
           git add nix/bin-sources.nix
           git commit -m "chore: update prebuilt binary hashes for v$VERSION"
           git push

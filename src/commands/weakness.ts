@@ -26,12 +26,14 @@ export function cmdWeakness(args: string[]): void {
   const types: string[] = [];
   let label = '';
   let isSpecies = false;
+  let speciesObj: ReturnType<typeof dex.species.get> | null = null;
 
   const firstSpecies = dex.species.get(targets[0]);
   const firstType = dex.types.get(targets[0]);
 
   if (firstSpecies.exists) {
     isSpecies = true;
+    speciesObj = firstSpecies;
     for (const t of firstSpecies.types) types.push(t);
     label = firstSpecies.name;
     for (let i = 1; i < targets.length; i++) {
@@ -66,6 +68,7 @@ export function cmdWeakness(args: string[]): void {
       const sp = dex.species.get(fuzzySpecies[0].name as string);
       if (sp.exists) {
         isSpecies = true;
+        speciesObj = sp;
         for (const t of sp.types) types.push(t);
         label = sp.name;
       }
@@ -116,6 +119,13 @@ export function cmdWeakness(args: string[]): void {
   console.log(`${red('Weaknesses')}:   ${weaknesses.join(', ') || dim('None')}`);
   console.log(`${green('Resistances')}: ${resistances.join(', ') || dim('None')}`);
   console.log(`${cyan('Immunities')}:  ${immunities.join(', ') || dim('None')}`);
+
+  if (speciesObj) {
+    const { def, spd } = speciesObj.baseStats;
+    const defStr = def < spd ? red(`Def ${def}`) : def > spd ? green(`Def ${def}`) : `Def ${def}`;
+    const spdStr = spd < def ? red(`SpD ${spd}`) : spd > def ? green(`SpD ${spd}`) : `SpD ${spd}`;
+    console.log(`${bold('Defenses')}:   ${defStr} / ${spdStr}`);
+  }
   console.log();
 
 }

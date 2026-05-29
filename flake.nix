@@ -27,8 +27,63 @@
         });
     in {
       packages = eachSystem (system:
-        let pkgs = pkgsFor.${system}; in {
-          default = pkgs.bun2nix.mkDerivation {
+        let
+          pkgs = pkgsFor.${system};
+          binSources = import ./nix/bin-sources.nix;
+          assetForSystem = {
+            "x86_64-linux" = "starmie-cli-linux-x64";
+            "aarch64-linux" = "starmie-cli-linux-arm64";
+            "x86_64-darwin" = "starmie-cli-macos-x64";
+            "aarch64-darwin" = "starmie-cli-macos-arm64";
+          };
+
+          # Prebuilt binary pulled from the GitHub release. This is the default.
+          #
+          # The binary is a bun --compile executable: the JS payload is appended
+          # after the ELF and found at runtime via /proc/self/exe. Stripping or
+          # rewriting the ELF (autoPatchelfHook, the default strip/patchELF
+          # fixups) corrupts that payload and the binary falls back to acting
+          # like plain bun. dontStrip/dontPatchELF disable those; only the
+          # interpreter is set, which is the one thing a glibc NixOS system
+          # needs. bun's binary links nothing beyond glibc, so no extra rpath
+          # is required.
+          bin = pkgs.stdenvNoCC.mkDerivation {
+            pname = "starmie-cli-bin";
+            version = binSources.version;
+
+            src = pkgs.fetchurl {
+              url = "https://github.com/luvcie/starmie-cli/releases/download/v${binSources.version}/${assetForSystem.${system}}";
+              hash = binSources.hashes.${system};
+            };
+
+            dontUnpack = true;
+            dontStrip = true;
+            dontPatchELF = true;
+
+            nativeBuildInputs = pkgs.lib.optionals pkgs.stdenv.isLinux [ pkgs.patchelf ];
+
+            installPhase = ''
+              runHook preInstall
+              install -Dm755 $src $out/bin/starmie-cli
+              ${pkgs.lib.optionalString pkgs.stdenv.isLinux ''
+                patchelf --set-interpreter "$(cat ${pkgs.stdenv.cc}/nix-support/dynamic-linker)" $out/bin/starmie-cli
+              ''}
+              runHook postInstall
+            '';
+
+            meta = with pkgs.lib; {
+              description = "Pokémon Showdown info commands in your terminal (prebuilt binary)";
+              homepage = "https://github.com/luvcie/starmie-cli";
+              license = licenses.mit;
+              maintainers = [ ];
+              mainProgram = "starmie-cli";
+              platforms = builtins.attrNames assetForSystem;
+            };
+          };
+
+          # Build from source with bun2nix. Heavier (pulls a build toolchain),
+          # but doesn't trust any prebuilt artifact.
+          source = pkgs.bun2nix.mkDerivation {
             packageJson = ./package.json;
 
             src = pkgs.lib.cleanSourceWith {
@@ -71,6 +126,9 @@
               platforms = platforms.linux ++ platforms.darwin;
             };
           };
+        in {
+          inherit bin source;
+          default = bin;
         });
 
       devShells = eachSystem (system:

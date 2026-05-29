@@ -1,6 +1,6 @@
 {
   "name": "starmie-cli",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "description": "Pokémon Showdown info commands in your terminal",
   "scripts": {
     "typecheck": "tsc --noEmit",

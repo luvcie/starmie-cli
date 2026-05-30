@@ -126,8 +126,58 @@
               platforms = platforms.linux ++ platforms.darwin;
             };
           };
+
+          # Build from source with buildNpmPackage, then compile a standalone
+          # binary with `bun build --compile`. No bun2nix, light closure
+          # (~150MB). This mirrors the nixpkgs derivation in nix/, so building
+          # it here keeps that submission path tested.
+          compiled = pkgs.buildNpmPackage {
+            pname = "starmie-cli";
+            version = (builtins.fromJSON (builtins.readFile ./package.json)).version;
+
+            src = pkgs.lib.cleanSourceWith {
+              src = ./.;
+              filter = name: type:
+                !(type == "directory" && baseNameOf name == "node_modules");
+            };
+
+            npmDepsHash = "sha256-StSwHoUHdTZfopT2r0Jx1z8P1I9PIp0MhEIH+9NmMr0=";
+
+            dontNpmBuild = true;
+            npmFlags = [ "--ignore-scripts" ];
+
+            nativeBuildInputs = [ pkgs.bun ]
+              ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [ pkgs.darwin.autoSignDarwinBinariesHook ];
+
+            dontStrip = true;
+            dontPatchELF = true;
+
+            buildPhase = ''
+              runHook preBuild
+              bun build --compile starmie-cli.ts --outfile starmie-cli
+              runHook postBuild
+            '';
+
+            installPhase = ''
+              runHook preInstall
+              install -Dm755 starmie-cli $out/bin/starmie-cli
+              ${pkgs.lib.optionalString pkgs.stdenv.isLinux ''
+                patchelf --set-interpreter "$(cat ${pkgs.stdenv.cc}/nix-support/dynamic-linker)" $out/bin/starmie-cli
+              ''}
+              runHook postInstall
+            '';
+
+            meta = with pkgs.lib; {
+              description = "Pokémon Showdown info commands in your terminal";
+              homepage = "https://github.com/luvcie/starmie-cli";
+              license = licenses.mit;
+              maintainers = [ ];
+              mainProgram = "starmie-cli";
+              platforms = platforms.linux ++ platforms.darwin;
+            };
+          };
         in {
-          inherit bin source;
+          inherit bin source compiled;
           default = bin;
         });
 

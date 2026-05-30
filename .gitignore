@@ -1,6 +1,5 @@
 node_modules/
 result
-package-lock.json
 dist/
 *.exe
 starmie-cli

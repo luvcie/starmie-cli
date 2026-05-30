@@ -1,5 +1,14 @@
 # Submitting starmie-cli to nixpkgs
 
+> **Before submitting:** this branch drifts from main as features
+> are added. Rebase it on main, then regenerate `package-lock.json`
+> (`npm install --ignore-scripts`) and refresh `npmDepsHash`
+> (`nix run nixpkgs#prefetch-npm-deps -- package-lock.json`). Adding deps to
+> package.json makes the committed hash stale, so this step is required or the
+> nixpkgs build will fail. Then fill the `fetchFromGitHub` src hash and your
+> maintainer handle (steps below).
+
+
 `nixpkgs-package.nix` is the draft derivation. It builds from source with
 `buildNpmPackage` (no bun2nix), compiles a standalone binary with
 `bun build --compile`, and patches only the interpreter on Linux. The resulting

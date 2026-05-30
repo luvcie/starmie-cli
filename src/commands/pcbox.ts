@@ -63,9 +63,14 @@ export function cmdPcbox(args: string[]): void {
       console.log(dim('Usage: pcbox save <name> <p1>, <p2>, ...'));
       return;
     }
-    const name = restTrim.slice(0, spaceIdx).trim();
+    const name = restTrim.slice(0, spaceIdx).replace(/,+$/, '').trim();
     const listRaw = restTrim.slice(spaceIdx + 1).trim();
     const pokemon = parsePokemonList(listRaw);
+
+    if (!name) {
+      console.log(dim('Usage: pcbox save <name> <p1>, <p2>, ...'));
+      return;
+    }
 
     if (!pokemon.length) {
       console.log(dim('Usage: pcbox save <name> <p1>, <p2>, ...'));

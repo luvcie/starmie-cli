@@ -1,10 +1,10 @@
 # Generated and updated by the release workflow. Do not edit by hand.
 {
-  version = "1.11.0";
+  version = "1.11.1";
   hashes = {
-    "x86_64-linux" = "sha256-/B3lJkQ6K+5NmyP18qQ9pN7QwD6JPp0CbLWoVMjrwtI=";
-    "aarch64-linux" = "sha256-+WRzfEs6sSLsEiJdDOXgAutTQzGdluNllinWGwXqovY=";
-    "x86_64-darwin" = "sha256-VFKIrj/3t0Dd2vgWyh4by3uQYciWFGLhnDpSsro70WU=";
-    "aarch64-darwin" = "sha256-dxhVNDMMwdGG8IJZq2hvOkTvOSIJXlsOYrCM7T7nNQ8=";
+    "x86_64-linux" = "sha256-JcwrrUKDFwW6YaPRiFpJwJDizQuazM8g6X5bfGPOcx4=";
+    "aarch64-linux" = "sha256-dQVQemd//6bRNOI2KzE7G/dVUo+KER/bVj+bb/KgvkA=";
+    "x86_64-darwin" = "sha256-Shj+kYfT6aBt00NetG7Zmq+/iDyyuPm1Hwt8+fRluC4=";
+    "aarch64-darwin" = "sha256-ZSER8gXSXz7cuSwLHGeyG2uIWnNi9CBQq1J/GVf8wSo=";
   };
 }
